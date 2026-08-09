@@ -1,0 +1,3233 @@
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>肥鹅美食家 Wiki</title>
+<style>
+:root {
+  --color-primary: #e8654a;
+  --color-primary-light: #ff8a6f;
+  --color-primary-dark: #c94a30;
+  --color-secondary: #f5a623;
+  --color-bg: #faf7f2;
+  --color-sidebar: #ffffff;
+  --color-card: #ffffff;
+  --color-text: #2d2d2d;
+  --color-text-light: #888;
+  --color-border: #e8e0d5;
+  --color-hover: #fff5ed;
+  --color-link: #e8654a;
+  --color-success: #4caf50;
+  --color-shadow: 0 2px 8px rgba(232,101,74,0.08);
+  --color-shadow-hover: 0 4px 16px rgba(232,101,74,0.15);
+  --radius: 10px;
+  --sidebar-width: 260px;
+  --transition: 0.2s ease;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: "PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+/* Header */
+.header {
+  position: fixed; top:0; left:0; right:0; height:60px; z-index:100;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  display: flex; align-items: center; padding: 0 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+.header-logo {
+  color: #fff; font-size: 20px; font-weight: 700; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+}
+.header-logo span { font-size: 24px; }
+/* Sidebar toggle button */
+.sidebar-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border: none; background: rgba(255,255,255,0.15);
+  border-radius: 8px; cursor: pointer; margin-right: 12px;
+  transition: var(--transition); color: #fff; font-size: 20px;
+  flex-shrink: 0;
+}
+.sidebar-toggle:hover { background: rgba(255,255,255,0.28); }
+.sidebar-toggle .bar {
+  display: block; width: 18px; height: 2px; background: #fff;
+  border-radius: 2px; transition: var(--transition);
+  position: relative;
+}
+.sidebar-toggle .bar::before,
+.sidebar-toggle .bar::after {
+  content: ""; position: absolute; left: 0; width: 18px; height: 2px;
+  background: #fff; border-radius: 2px; transition: 0.25s ease;
+}
+.sidebar-toggle .bar::before { top: -6px; }
+.sidebar-toggle .bar::after { top: 6px; }
+/* Collapsed state icon transform */
+.layout.sidebar-hidden .sidebar-toggle .bar { background: transparent; }
+.layout.sidebar-hidden .sidebar-toggle .bar::before {
+  top: 0; transform: rotate(45deg);
+}
+.layout.sidebar-hidden .sidebar-toggle .bar::after {
+  top: 0; transform: rotate(-45deg);
+}
+.search-box {
+  margin-left: auto; position: relative; width: 320px; max-width: 50vw;
+}
+.search-box input {
+  width: 100%; height: 36px; border: none; border-radius: 18px;
+  padding: 0 16px 0 40px; font-size: 14px; background: rgba(255,255,255,0.95);
+  outline: none; transition: var(--transition);
+}
+.search-box input:focus { background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.3); }
+.search-box::before {
+  content: "🔍"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; pointer-events: none;
+}
+.search-results {
+  position: absolute; top: 42px; left: 0; right: 0; background: #fff;
+  border-radius: var(--radius); box-shadow: var(--color-shadow-hover);
+  max-height: 400px; overflow-y: auto; display: none; z-index: 200;
+}
+.search-results.active { display: block; }
+.search-result-item {
+  padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; gap: 8px; transition: var(--transition);
+}
+.search-result-item:hover { background: var(--color-hover); }
+.search-result-item:last-child { border-bottom: none; }
+.search-result-type {
+  font-size: 12px; padding: 2px 8px; border-radius: 4px; color: #fff; white-space: nowrap;
+}
+/* Layout */
+.layout { display: flex; margin-top: 60px; min-height: calc(100vh - 60px); }
+.sidebar {
+  position: fixed; top: 60px; left: 0; bottom: 0; width: var(--sidebar-width);
+  background: var(--color-sidebar); border-right: 1px solid var(--color-border);
+  overflow-y: auto; z-index: 50; padding: 8px 0;
+  transition: transform 0.3s ease;
+}
+.layout.sidebar-hidden .sidebar { transform: translateX(-100%); }
+.sidebar::-webkit-scrollbar { width: 5px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+.main-content {
+  margin-left: var(--sidebar-width); flex: 1; padding: 24px 32px;
+  max-width: calc(100vw - var(--sidebar-width));
+  transition: margin-left 0.3s ease, max-width 0.3s ease;
+}
+.layout.sidebar-hidden .main-content {
+  margin-left: 0; max-width: 100vw;
+}
+/* Sidebar nav */
+.nav-section { margin-bottom: 2px; }
+.nav-section-header {
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+  cursor: pointer; font-weight: 600; font-size: 15px; color: var(--color-text);
+  transition: var(--transition); user-select: none; border-left: 3px solid transparent;
+}
+.nav-section-header:hover { background: var(--color-hover); }
+.nav-section-header.active { border-left-color: var(--color-primary); color: var(--color-primary); }
+.nav-section-header .nav-icon { font-size: 18px; }
+.nav-section-header .nav-arrow {
+  margin-left: auto; font-size: 12px; transition: transform 0.2s; color: var(--color-text-light);
+}
+.nav-section.expanded .nav-arrow { transform: rotate(90deg); }
+.nav-section-items { display: none; padding: 0; }
+.nav-section.expanded .nav-section-items { display: block; }
+.nav-item {
+  padding: 7px 16px 7px 48px; cursor: pointer; font-size: 13px; color: var(--color-text);
+  transition: var(--transition); border-left: 3px solid transparent;
+}
+.nav-item:hover { background: var(--color-hover); }
+.nav-item.active { color: var(--color-primary); border-left-color: var(--color-primary); background: var(--color-hover); font-weight: 600; }
+.nav-item .count-badge {
+  display: inline-block; margin-left: 6px; font-size: 11px; background: var(--color-border);
+  padding: 1px 7px; border-radius: 10px; color: var(--color-text-light);
+}
+.nav-divider { height: 1px; background: var(--color-border); margin: 8px 16px; }
+/* Breadcrumb */
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-light);
+  margin-bottom: 20px;
+}
+.breadcrumb a { color: var(--color-link); cursor: pointer; text-decoration: none; transition: var(--transition); }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb .separator { color: var(--color-border); }
+/* Cards */
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
+}
+.element-card {
+  background: var(--color-card); border-radius: var(--radius); padding: 16px;
+  cursor: pointer; transition: var(--transition); border: 1px solid var(--color-border);
+  box-shadow: var(--color-shadow); position: relative; overflow: hidden;
+}
+.element-card:hover { box-shadow: var(--color-shadow-hover); transform: translateY(-2px); border-color: var(--color-primary-light); }
+.element-card .card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--color-text); }
+.element-card .card-category {
+  font-size: 12px; color: #fff; padding: 2px 10px; border-radius: 12px; display: inline-block; margin-bottom: 8px;
+}
+.element-card .card-desc { font-size: 13px; color: var(--color-text-light); line-height: 1.5; }
+.element-card .card-type-badge {
+  position: absolute; top: 0; right: 0; font-size: 11px; padding: 2px 10px; color: #fff; border-radius: 0 0 0 8px;
+}
+/* Detail view */
+.detail-container { max-width: 900px; margin: 0 auto; }
+.detail-header {
+  background: var(--color-card); border-radius: var(--radius); padding: 24px 28px;
+  margin-bottom: 20px; box-shadow: var(--color-shadow); border: 1px solid var(--color-border);
+}
+.detail-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.detail-category { font-size: 13px; color: #fff; padding: 3px 14px; border-radius: 12px; display: inline-block; margin-bottom: 12px; }
+.detail-desc { font-size: 14px; color: var(--color-text-light); line-height: 1.7; }
+.detail-section {
+  background: var(--color-card); border-radius: var(--radius); padding: 20px 24px;
+  margin-bottom: 16px; box-shadow: var(--color-shadow); border: 1px solid var(--color-border);
+}
+.detail-section-title {
+  font-size: 16px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--color-border);
+}
+.relation-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px;
+  transition: var(--transition); cursor: pointer; margin-bottom: 6px; background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}
+.relation-item:hover { background: var(--color-hover); border-color: var(--color-primary-light); }
+.relation-item .rel-type-badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 4px; color: #fff; white-space: nowrap;
+}
+.relation-item .rel-name { font-weight: 500; font-size: 14px; }
+.relation-item .rel-qty { margin-left: auto; font-size: 13px; color: var(--color-text-light); font-weight: 600; }
+.relation-item .rel-arrow { color: var(--color-text-light); font-size: 14px; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--color-text-light); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.4; }
+/* Home dashboard */
+.dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--color-card); border-radius: var(--radius); padding: 20px; text-align: center;
+  box-shadow: var(--color-shadow); border: 1px solid var(--color-border); cursor: pointer; transition: var(--transition);
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--color-shadow-hover); }
+.stat-card .stat-icon { font-size: 36px; margin-bottom: 8px; }
+.stat-card .stat-number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
+.stat-card .stat-label { font-size: 13px; color: var(--color-text-light); margin-top: 4px; }
+.section-heading { font-size: 20px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+/* Daily menu */
+.daily-menu-container { max-width: 1200px; margin: 0 auto; }
+.day-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 16px; }
+.day-column {
+  background: var(--color-card); border: 1px solid var(--color-border); border-radius: 12px;
+  padding: 16px; display: flex; flex-direction: column; min-height: 320px;
+  min-width: 0; overflow: hidden;
+}
+.day-column-header {
+  font-size: 16px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+}
+.day-column-header .day-label { font-size: 12px; color: #fff; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.day-column-header .day-label.today { background: var(--color-secondary); }
+.day-column .dish-list { margin: 8px 0; }
+.day-column .daily-dish-item { padding: 8px 12px; margin-bottom: 4px; overflow: hidden; }
+.day-column .daily-dish-item .dish-category { font-size: 11px; padding: 1px 6px; white-space: nowrap; }
+.day-column .daily-dish-item .dish-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+.day-column .progress-bar { height: 20px; border-radius: 10px; margin-bottom: 4px; width: 100%; flex: none; }
+.day-column .progress-fill { border-radius: 10px; }
+.day-column .progress-text { font-size: 11px; white-space: nowrap; }
+.day-column .add-dish-btn { padding: 6px 12px; font-size: 12px; }
+.day-column .dish-picker { max-height: 200px; }
+.day-column .notes-area textarea { min-height: 40px; font-size: 12px; }
+.day-column .save-btn { padding: 6px 16px; font-size: 12px; }
+.day-column .empty-hint { color: var(--color-text-light); font-size: 13px; text-align: center; padding: 16px 8px; }
+.daily-menu-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.day-selector { display: flex; align-items: center; gap: 8px; }
+.day-selector label { font-weight: 600; font-size: 15px; }
+.day-selector input {
+  width: 80px; height: 36px; border: 1px solid var(--color-border); border-radius: 8px;
+  text-align: center; font-size: 16px; font-weight: 600; outline: none;
+}
+.day-selector input:focus { border-color: var(--color-primary); }
+.day-nav-btn {
+  width: 36px; height: 36px; border: 1px solid var(--color-border); border-radius: 8px;
+  background: var(--color-card); cursor: pointer; font-size: 16px; transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.day-nav-btn:hover { background: var(--color-hover); border-color: var(--color-primary); }
+.progress-bar {
+  flex: 1; min-width: 200px; height: 36px; background: var(--color-border); border-radius: 18px;
+  overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center;
+}
+.progress-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--color-success); border-radius: 18px; transition: width 0.3s; }
+.progress-text { position: relative; z-index: 1; font-size: 13px; font-weight: 600; color: var(--color-text); }
+.daily-dish-item {
+  display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 8px;
+  margin-bottom: 8px; background: var(--color-card); border: 1px solid var(--color-border);
+  transition: var(--transition); overflow: hidden;
+}
+.daily-dish-item:hover { border-color: var(--color-primary-light); box-shadow: var(--color-shadow); }
+.daily-dish-item.completed { opacity: 0.6; }
+.daily-dish-item.completed .dish-name { text-decoration: line-through; }
+.complete-toggle {
+  width: 24px; height: 24px; border: 2px solid var(--color-border); border-radius: 50%;
+  cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.complete-toggle.checked { background: var(--color-success); border-color: var(--color-success); }
+.complete-toggle.checked::after { content: "✓"; color: #fff; font-size: 14px; font-weight: 700; }
+.daily-dish-item .dish-name { font-weight: 500; font-size: 14px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.daily-dish-item .dish-name:hover { color: var(--color-link); }
+.daily-dish-item .dish-category { font-size: 12px; color: #fff; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; white-space: nowrap; }
+.daily-dish-item .remove-btn {
+  margin-left: auto; width: 28px; height: 28px; border: none; background: transparent;
+  color: var(--color-text-light); cursor: pointer; font-size: 18px; border-radius: 6px; transition: var(--transition);
+  flex-shrink: 0;
+}
+.daily-dish-item .remove-btn:hover { background: #fee; color: var(--color-primary); }
+.add-dish-area { margin-top: 16px; }
+.add-dish-btn {
+  padding: 10px 20px; border: 2px dashed var(--color-border); border-radius: 8px; background: transparent;
+  cursor: pointer; font-size: 14px; color: var(--color-text-light); transition: var(--transition); width: 100%;
+}
+.add-dish-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.dish-picker {
+  margin-top: 12px; max-height: 300px; overflow-y: auto; border: 1px solid var(--color-border);
+  border-radius: 8px; display: none;
+}
+.dish-picker.active { display: block; }
+.dish-picker-item {
+  padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--color-border); transition: var(--transition);
+  display: flex; align-items: center; gap: 8px;
+}
+.dish-picker-item:hover { background: var(--color-hover); }
+.dish-picker-item:last-child { border-bottom: none; }
+.dish-picker-search { width: 100%; padding: 10px 16px; border: none; border-bottom: 1px solid var(--color-border); outline: none; font-size: 14px; }
+.picker-tab {
+  padding: 4px 10px; border: 1px solid var(--color-border); border-radius: 14px;
+  background: transparent; cursor: pointer; font-size: 12px; color: var(--color-text-light);
+  transition: var(--transition);
+}
+.picker-tab:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.picker-tab.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.notes-area { margin-top: 16px; }
+.notes-area textarea {
+  width: 100%; min-height: 60px; padding: 10px 14px; border: 1px solid var(--color-border);
+  border-radius: 8px; font-size: 14px; resize: vertical; outline: none; font-family: inherit;
+}
+.notes-area textarea:focus { border-color: var(--color-primary); }
+.save-btn {
+  margin-top: 12px; padding: 10px 28px; border: none; border-radius: 8px;
+  background: var(--color-primary); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition);
+}
+.save-btn:hover { background: var(--color-primary-dark); }
+/* Ingredient checklist */
+.ingredient-checklist { margin-top: 12px; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; }
+.ingredient-checklist-header { padding: 8px 12px; background: var(--color-sidebar); font-weight: 600; font-size: 13px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+.ingredient-checklist-header .copy-link { font-size: 12px; color: var(--color-primary); cursor: pointer; font-weight: 500; }
+.ingredient-checklist-body { max-height: 300px; overflow-y: auto; }
+.ingredient-checklist-item { display: flex; align-items: center; padding: 6px 12px; font-size: 13px; border-bottom: 1px solid var(--color-border); gap: 8px; }
+.ingredient-checklist-item:last-child { border-bottom: none; }
+.ingredient-checklist-item .qty { margin-left: auto; font-weight: 700; color: var(--color-primary); }
+.ingredient-checklist-item .cat-badge { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: var(--color-border); color: var(--color-text-light); white-space: nowrap; }
+.ingredient-checklist-empty { padding: 16px; text-align: center; color: var(--color-text-light); font-size: 13px; }
+/* Export/Import buttons */
+.export-btn, .import-btn {
+  padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 8px;
+  background: var(--color-card); color: var(--color-text); font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: var(--transition);
+}
+.export-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.import-btn:hover { border-color: var(--color-success); color: var(--color-success); }
+.clear-btn { padding: 8px 16px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card); color: #e74c3c; font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+.clear-btn:hover { border-color: #e74c3c; background: #fdf0ef; }
+.md-import-btn { padding: 8px 16px; border: 1px solid #8e44ad; border-radius: 8px; background: var(--color-card); color: #8e44ad; font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+.md-import-btn:hover { border-color: #6c3483; background: #f3eef8; }
+.md-clear-btn { border: 1px solid #e74c3c; color: #e74c3c; background: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: var(--transition); }
+.md-clear-btn:hover { background: #fdf0ef; }
+/* MD Import Preview Modal */
+.md-preview-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
+}
+.md-preview-overlay.active { display: flex; }
+.md-preview-box {
+  background: var(--color-card); border-radius: 16px; max-width: 800px; width: 90%;
+  max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.2); padding: 0;
+}
+.md-preview-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--color-border);
+  display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; background: var(--color-card); z-index:1; border-radius:16px 16px 0 0;
+}
+.md-preview-header h3 { font-size: 18px; margin:0; color: var(--color-text); }
+.md-preview-body { padding: 16px 24px; }
+.md-preview-body .summary { background: #f0f8e8; border-left: 4px solid var(--color-success); padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; }
+.md-preview-body .summary.warn { background: #fff8e8; border-left: 4px solid var(--color-secondary); }
+.md-preview-body .summary span { font-weight: 600; }
+.md-preview-section { margin-bottom: 20px; }
+.md-preview-section h4 { font-size: 15px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--color-primary); display: inline-block; }
+.md-preview-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.md-preview-table th { background: var(--color-bg); padding: 8px 10px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--color-border); position: sticky; top: 0; }
+.md-preview-table td { padding: 8px 10px; border-bottom: 1px solid var(--color-border); vertical-align: top; }
+.md-preview-table .tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; }
+.md-preview-table .tag-new { background: #e8f5e9; color: #2e7d32; }
+.md-preview-table .tag-dish { background: #e3f2fd; color: #1565c0; }
+.md-preview-table .tag-exist { background: #e3f2fd; color: #1565c0; }
+.md-preview-table .ing-list { font-size: 12px; line-height: 1.6; }
+.md-preview-table .ing-item { display: inline-block; margin-right: 6px; padding: 2px 6px; background: #f5f5f5; border-radius: 3px; margin-bottom: 2px; }
+.md-preview-footer {
+  padding: 16px 24px; border-top: 1px solid var(--color-border); display: flex; gap: 10px; justify-content: flex-end;
+  position: sticky; bottom:0; background: var(--color-card); border-radius:0 0 16px 16px;
+}
+.md-preview-footer button { padding: 10px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+.md-preview-footer .btn-cancel { background: var(--color-bg); color: var(--color-text); border: 1px solid var(--color-border); }
+.md-preview-footer .btn-confirm { background: var(--color-primary); color: #fff; }
+.paste-btn { padding: 6px 16px; border: 2px dashed #999; border-radius: 8px; background: none; cursor: pointer; font-size: 14px; font-weight: 500; color: #666; transition: all 0.2s; font-family: inherit; }
+.paste-btn:hover { border-color: #ff9800; color: #ff9800; }
+/* Modal */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: #fff; border-radius: 12px; padding: 24px; width: 90%; max-width: 520px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.modal-box h3 { margin: 0 0 12px; font-size: 18px; }
+.modal-box p { margin: 0 0 12px; font-size: 13px; color: #888; line-height: 1.6; }
+.modal-box textarea { width: 100%; height: 200px; border: 1px solid var(--color-border); border-radius: 8px; padding: 12px; font-family: 'Consolas','Courier New',monospace; font-size: 12px; resize: vertical; box-sizing: border-box; }
+.modal-box textarea:focus { outline: none; border-color: var(--color-primary); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.modal-actions button { padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; }
+.btn-cancel { background: #f0f0f0; color: #666; }
+.btn-confirm { background: var(--color-primary); color: #fff; }
+/* Category color mapping */
+.cat-launcher { background: #5b8def; }
+.cat-ingredient { background: #4caf50; }
+.cat-utensil { background: #ff9800; }
+.cat-dish { background: var(--color-primary); }
+/* Type badge colors */
+.badge-launcher { background: #5b8def; }
+.badge-ingredient { background: #4caf50; }
+.badge-utensil { background: #ff9800; }
+.badge-dish { background: var(--color-primary); }
+/* Responsive */
+@media (max-width: 900px) {
+  .day-grid { grid-template-columns: 1fr; }
+}
+  :root { --sidebar-width: 220px; }
+  .main-content { padding: 16px; }
+  .search-box { width: 200px; }
+  .header-logo { font-size: 16px; }
+}
+/* Animation */
+.fade-in { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* Back button */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 8px;
+  background: var(--color-bg); border: 1px solid var(--color-border); cursor: pointer;
+  font-size: 13px; color: var(--color-text); transition: var(--transition); margin-bottom: 16px;
+}
+.back-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+/* ============ SCORE CALCULATOR ============ */
+.calc-container { max-width: 700px; margin: 0 auto; }
+.calc-card {
+  background: var(--color-card); border: 1px solid var(--color-border); border-radius: 12px;
+  padding: 24px; margin-bottom: 20px;
+}
+.calc-label { font-size: 14px; font-weight: 600; color: var(--color-text); margin-bottom: 6px; }
+.calc-input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.calc-input {
+  flex: 1; padding: 10px 14px; border: 2px solid var(--color-border); border-radius: 8px;
+  font-size: 15px; background: var(--color-bg); color: var(--color-text); outline: none;
+  transition: border-color 0.2s;
+}
+.calc-input:focus { border-color: var(--color-primary); }
+.calc-input-sm { width: 90px; padding: 8px 10px; border: 2px solid var(--color-border);
+  border-radius: 8px; font-size: 15px; text-align: center; background: var(--color-bg);
+  color: var(--color-text); outline: none; transition: border-color 0.2s; }
+.calc-input-sm:focus { border-color: var(--color-primary); }
+.calc-dish-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.calc-dish-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  background: var(--color-bg); border-radius: 8px; border: 1px solid var(--color-border);
+}
+.calc-dish-index {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--color-primary);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.calc-dish-name { flex: 1; }
+.calc-dish-score { font-weight: 700; color: var(--color-primary); min-width: 50px; text-align: right; }
+.calc-btn {
+  padding: 8px 18px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px;
+}
+.calc-btn-primary { background: var(--color-primary); color: #fff; }
+.calc-btn-primary:hover { background: var(--color-primary-dark); transform: translateY(-1px); }
+.calc-btn-outline {
+  background: transparent; border: 1.5px solid var(--color-border); color: var(--color-text);
+}
+.calc-btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.calc-btn-danger { color: var(--color-danger); border: 1.5px solid var(--color-danger); background: transparent; }
+.calc-btn-danger:hover { background: var(--color-danger); color: #fff; }
+.calc-btn-sm { padding: 4px 12px; font-size: 12px; }
+.calc-result-item {
+  padding: 16px 20px; border-radius: 10px; margin-bottom: 10px;
+  border: 2px solid var(--color-border); background: var(--color-bg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.calc-result-item.best { border-color: var(--color-success); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+.calc-result-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.calc-result-sum {
+  font-size: 22px; font-weight: 800; color: var(--color-primary);
+}
+.calc-result-diff {
+  font-size: 13px; padding: 3px 10px; border-radius: 20px; font-weight: 600;
+}
+.calc-result-diff.exact { background: #d1fae5; color: #065f46; }
+.calc-result-diff.over { background: #fef3c7; color: #92400e; }
+.calc-result-score-list {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.calc-score-tag {
+  padding: 4px 12px; border-radius: 20px; background: var(--color-primary-light);
+  color: var(--color-primary); font-weight: 600; font-size: 13px;
+}
+.calc-help {
+  font-size: 13px; color: var(--color-text-light); line-height: 1.7;
+  padding: 14px 18px; background: var(--color-bg); border-radius: 10px; border: 1px dashed var(--color-border);
+}
+</style>
+<script src="https://beacon.cdn.qq.com/sdk/4.5.9/beacon_web.min.js"></script>
+<script>
+(function(){
+  try{
+    var beacon=new BeaconAction({
+      appkey:'0WEB06U85YBSLJNL',
+      versionCode:'1.0.0',
+      channelID:'share',
+      delay:1000,
+      sessionDuration:30*60*1000,
+      isOversea:false,
+      needReportRqdEvent:false
+    });
+    beacon.onDirectUserAction('preview_page_view',{
+      'url':location.href,
+      'referrer':document.referrer,
+      'title':document.title,
+      'sandbox_id':'1102c14904a94ecf9535d3a636bb09e7'
+    });
+  }catch(e){}
+})();
+</script></head>
+<body><script>localStorage.setItem("fei_e_game_data_ext","{\"ingredients\":[{\"id\":\"ing_md_3738bba6\",\"name\":\"竹香料理秘制配方1\",\"category\":\"香料调料\",\"source\":{\"type\":\"launcher\",\"id\":\"launcher_meditation_garden\"},\"description\":\"（导入自MD）竹香料理秘制配方1\"},{\"id\":\"ing_md_3738bba4\",\"name\":\"竹香料理秘制配方3\",\"category\":\"香料调料\",\"source\":{\"type\":\"launcher\",\"id\":\"launcher_meditation_garden\"},\"description\":\"（导入自MD）竹香料理秘制配方3\"}],\"dishes\":[{\"id\":\"dish_md_366d65d7\",\"name\":\"酥炸香菇丸\",\"category\":\"炸物小吃\",\"cookingUtensil\":\"cu_stove\",\"ingredients\":[{\"id\":\"ing_mushroom\",\"qty\":1},{\"id\":\"ing_bread_crumbs\",\"qty\":1},{\"id\":\"dish_bechamel\",\"qty\":1}],\"description\":\"炸物小吃菜品 - 酥炸香菇丸\"},{\"id\":\"dish_md_6990b6e4\",\"name\":\"玉米猪骨汤\",\"category\":\"炖煮佳肴\",\"cookingUtensil\":\"cu_stew_pot\",\"ingredients\":[{\"id\":\"ing_corn\",\"qty\":1},{\"id\":\"ing_pork_hock\",\"qty\":1}],\"description\":\"炖煮佳肴菜品 - 玉米猪骨汤\"},{\"id\":\"dish_md_1bd34e0\",\"name\":\"玉子烧\",\"category\":\"和风料理\",\"cookingUtensil\":\"cu_stove\",\"ingredients\":[{\"id\":\"ing_egg\",\"qty\":1},{\"id\":\"ing_md_3738bba6\",\"qty\":1}],\"description\":\"和风料理菜品 - 玉子烧\"},{\"id\":\"dish_md_2b1c90f3\",\"name\":\"寿司米饭\",\"category\":\"和风料理\",\"cookingUtensil\":\"cu_stew_pot\",\"ingredients\":[{\"id\":\"ing_water\",\"qty\":1},{\"id\":\"ing_rice\",\"qty\":1},{\"id\":\"ing_md_3738bba6\",\"qty\":1}],\"description\":\"和风料理菜品 - 寿司米饭\"},{\"id\":\"dish_md_628ff5de\",\"name\":\"玉子烧寿司卷\",\"category\":\"和风料理\",\"cookingUtensil\":\"cu_prep_table\",\"ingredients\":[{\"id\":\"ing_md_3738bba4\",\"qty\":1},{\"id\":\"dish_md_1bd34e0\",\"qty\":1},{\"id\":\"dish_md_2b1c90f3\",\"qty\":1}],\"description\":\"和风料理菜品 - 玉子烧寿司卷\"}]}");</script>
+<!-- Header -->
+<div class="header">
+  <button class="sidebar-toggle" id="sidebarToggle" title="展开/收起导航栏">
+    <span class="bar"></span>
+  </button>
+  <div class="header-logo"><span>🦢</span> 肥鹅美食家 Wiki</div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索发射器/食材/炊具/菜品..." autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+<!-- Layout -->
+<div class="layout">
+  <div class="sidebar" id="sidebar"><div class="nav-section-header" onclick="navigate('home')" style="padding-left:20px;">
+    <span class="nav-icon">🏠</span> 首页
+  </div><div class="nav-section-header active" onclick="navigate('dailyMenu')" style="padding-left:20px;">
+    <span class="nav-icon">📅</span> 每日菜谱
+  </div><div class="nav-section-header" onclick="navigate('calculator')" style="padding-left:20px;">
+    <span class="nav-icon">🧮</span> 分值计算器
+  </div><div class="nav-divider"></div><div class="nav-section " data-type="launchers">
+      <div class="nav-section-header" onclick="toggleSection('launchers')">
+        <span class="nav-icon">🚀</span>
+        <span>发射器</span>
+        <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-section-items"><div class="nav-item" onclick="navigate('category','launchers','发射器总表')">
+        发射器总表 <span class="count-badge">10</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','蔬菜篮子')">
+        蔬菜篮子 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','冰柜')">
+        冰柜 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','鲜肉销售')">
+        鲜肉销售 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','果盆')">
+        果盆 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','海钓工具')">
+        海钓工具 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','酒水饮料台')">
+        酒水饮料台 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','五谷米仓')">
+        五谷米仓 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','天青色茶楼')">
+        天青色茶楼 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','制面机器')">
+        制面机器 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','launchers','冥想花园')">
+        冥想花园 <span class="count-badge">1</span>
+      </div></div></div><div class="nav-section " data-type="ingredients">
+      <div class="nav-section-header" onclick="toggleSection('ingredients')">
+        <span class="nav-icon">🥬</span>
+        <span>食材</span>
+        <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-section-items"><div class="nav-item" onclick="navigate('category','ingredients','食材总表')">
+        食材总表 <span class="count-badge">134</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','蔬菜')">
+        蔬菜 <span class="count-badge">16</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','香料调料')">
+        香料调料 <span class="count-badge">8</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','爆米花')">
+        爆米花 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','香草制品')">
+        香草制品 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','咖啡')">
+        咖啡 <span class="count-badge">4</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','茶水')">
+        茶水 <span class="count-badge">4</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','奶制品')">
+        奶制品 <span class="count-badge">5</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','器皿')">
+        器皿 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','畜肉')">
+        畜肉 <span class="count-badge">10</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','禽肉')">
+        禽肉 <span class="count-badge">7</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','水果')">
+        水果 <span class="count-badge">10</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','糖果')">
+        糖果 <span class="count-badge">7</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','无壳海鲜')">
+        无壳海鲜 <span class="count-badge">10</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','带壳海鲜')">
+        带壳海鲜 <span class="count-badge">8</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','发酵饮料')">
+        发酵饮料 <span class="count-badge">9</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','软性饮料')">
+        软性饮料 <span class="count-badge">7</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','谷物杂粮')">
+        谷物杂粮 <span class="count-badge">6</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','茶楼菜谱')">
+        茶楼菜谱 <span class="count-badge">8</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','特色面食')">
+        特色面食 <span class="count-badge">8</span>
+      </div><div class="nav-item" onclick="navigate('category','ingredients','威尼斯秘制配方')">
+        威尼斯秘制配方 <span class="count-badge">7</span>
+      </div></div></div><div class="nav-section " data-type="cookingUtensils">
+      <div class="nav-section-header" onclick="toggleSection('cookingUtensils')">
+        <span class="nav-icon">🍳</span>
+        <span>炊具</span>
+        <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-section-items"><div class="nav-item" onclick="navigate('category','cookingUtensils','炊具总表')">
+        炊具总表 <span class="count-badge">8</span>
+      </div><div class="nav-item" onclick="navigate('category','cookingUtensils','料理台')">
+        料理台 <span class="count-badge">2</span>
+      </div><div class="nav-item" onclick="navigate('category','cookingUtensils','烧烤架')">
+        烧烤架 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','cookingUtensils','搅拌机')">
+        搅拌机 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','cookingUtensils','灶台')">
+        灶台 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','cookingUtensils','烤箱')">
+        烤箱 <span class="count-badge">1</span>
+      </div><div class="nav-item" onclick="navigate('category','cookingUtensils','炖煮锅')">
+        炖煮锅 <span class="count-badge">1</span>
+      </div></div></div><div class="nav-section expanded" data-type="dishes">
+      <div class="nav-section-header" onclick="toggleSection('dishes')">
+        <span class="nav-icon">🍽️</span>
+        <span>菜品</span>
+        <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-section-items"><div class="nav-item" onclick="navigate('category','dishes','菜品总表')">
+        菜品总表 <span class="count-badge">236</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','生食冷盘')">
+        生食冷盘 <span class="count-badge">8</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','奶茶甜点')">
+        奶茶甜点 <span class="count-badge">18</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','街边烧烤')">
+        街边烧烤 <span class="count-badge">18</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','鲜榨果汁')">
+        鲜榨果汁 <span class="count-badge">11</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','炸物小吃')">
+        炸物小吃 <span class="count-badge">8</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','家常菜')">
+        家常菜 <span class="count-badge">11</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','海鲜大餐')">
+        海鲜大餐 <span class="count-badge">21</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','混合饮品')">
+        混合饮品 <span class="count-badge">19</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','烘焙面点')">
+        烘焙面点 <span class="count-badge">16</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','预料理食材')">
+        预料理食材 <span class="count-badge">13</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','炖煮佳肴')">
+        炖煮佳肴 <span class="count-badge">5</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','烤制大餐')">
+        烤制大餐 <span class="count-badge">2</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','茶楼味道')">
+        茶楼味道 <span class="count-badge">36</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','威尼斯风味')">
+        威尼斯风味 <span class="count-badge">46</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','和风料理')">
+        和风料理 <span class="count-badge">3</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','地中海料理')">
+        地中海料理 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','巴伐利亚风味')">
+        巴伐利亚风味 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','墨西哥风情')">
+        墨西哥风情 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','土耳其料理')">
+        土耳其料理 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','新奥尔良风味')">
+        新奥尔良风味 <span class="count-badge">0</span>
+      </div><div class="nav-item" onclick="navigate('category','dishes','泰式风情')">
+        泰式风情 <span class="count-badge">0</span>
+      </div></div></div></div>
+  <div class="main-content fade-in" id="mainContent"><div class="breadcrumb">
+    <a onclick="navigate('home')">首页</a>
+    <span class="separator">/</span>
+    <span>每日菜谱</span>
+  </div>
+  <div class="daily-menu-container">
+    <div class="section-heading">📅 每日菜谱</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="export-btn" onclick="exportDailyMenus()" title="导出所有菜谱数据为JSON文件">📥 导出数据</button>
+      <button class="paste-btn" onclick="copyExportData()" title="复制菜谱JSON到剪贴板">📋 复制数据</button>
+      <button class="import-btn" onclick="document.getElementById('importFileInput').click()" title="从JSON文件导入菜谱数据">📤 导入数据</button>
+      <button class="paste-btn" onclick="showPasteModal()" title="粘贴JSON文本导入菜谱数据">📋 粘贴导入</button>
+      <button class="clear-btn" onclick="clearDailyData()" title="清除所有菜谱数据（请先导出备份）">🗑️ 清除数据</button>
+      <button class="md-import-btn" onclick="document.getElementById('mdImportFileInput').click()" title="从MD文件导入菜品并自动生成食材">📄 导入菜品MD</button>
+      <button class="md-import-btn" onclick="exportUpdatedHTML()" title="下载完整HTML文件，文件名格式：fe+菜品数量.html（如fe236.html）" style="border-color:#27ae60;color:#27ae60;">💾 导出更新HTML</button>
+      <button class="md-clear-btn" onclick="clearMDImportData()" title="清除所有通过MD导入的菜品和食材数据">🗑️ 清除导入菜品</button>
+      <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importDailyMenus(this.files[0])">
+      <input type="file" id="mdImportFileInput" accept=".md,.txt" style="display:none" onchange="handleMDImport(this.files[0])">
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <button class="day-nav-btn" onclick="changeDay(-3)">◀</button>
+      <span style="font-weight:700;font-size:16px;">第 128 ~ 130 天</span>
+      <button class="day-nav-btn" onclick="changeDay(3)">▶</button>
+    </div>
+    <div class="day-grid">
+      <div class="day-column" id="dayCol0">
+        <div class="day-column-header">📅 今天 <span class="day-label today">Day 128</span></div>
+        <div class="progress-bar" style="margin-bottom:8px;"><div class="progress-fill" id="dayProgress0" style="width:0%"></div><span class="progress-text" id="dayProgressText0">0 / 0</span></div>
+        <div class="dish-list" id="dayDishList0"><div class="empty-hint">🍽️ 暂无菜品/食材</div></div>
+        <div class="add-dish-area">
+          <button class="add-dish-btn" onclick="toggleDayPicker(0)">+ 添加菜品/食材</button>
+          <div class="dish-picker" id="dayPicker0">
+            <input type="text" class="dish-picker-search" placeholder="搜索菜品或食材..." oninput="filterDayPicker(0)">
+            <div style="display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--color-border);">
+              <button class="picker-tab active" onclick="setPickerTab(0,'all')" id="pickerTab0_all">全部</button>
+              <button class="picker-tab" onclick="setPickerTab(0,'dishes')" id="pickerTab0_dishes">菜品</button>
+              <button class="picker-tab" onclick="setPickerTab(0,'ingredients')" id="pickerTab0_ingredients">食材</button>
+            </div>
+            <div id="dayPickerList0"></div>
+          </div>
+        </div>
+        <div class="notes-area"><textarea id="dayNotes0" placeholder="备注..." onchange="saveDayNotes(0)"></textarea></div>
+        <button class="save-btn" onclick="saveAndShowIngredients(0)" style="margin-top:4px;">💾 保存</button>
+        <div id="dayIngredientList0"></div>
+      </div>
+      <div class="day-column" id="dayCol1">
+        <div class="day-column-header">📅 明天 <span class="day-label" style="background:#9e9e9e;">Day 129</span></div>
+        <div class="progress-bar" style="margin-bottom:8px;"><div class="progress-fill" id="dayProgress1" style="width:0%"></div><span class="progress-text" id="dayProgressText1">0 / 0</span></div>
+        <div class="dish-list" id="dayDishList1"><div class="empty-hint">🍽️ 暂无菜品/食材</div></div>
+        <div class="add-dish-area">
+          <button class="add-dish-btn" onclick="toggleDayPicker(1)">+ 添加菜品/食材</button>
+          <div class="dish-picker" id="dayPicker1">
+            <input type="text" class="dish-picker-search" placeholder="搜索菜品或食材..." oninput="filterDayPicker(1)">
+            <div style="display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--color-border);">
+              <button class="picker-tab active" onclick="setPickerTab(1,'all')" id="pickerTab1_all">全部</button>
+              <button class="picker-tab" onclick="setPickerTab(1,'dishes')" id="pickerTab1_dishes">菜品</button>
+              <button class="picker-tab" onclick="setPickerTab(1,'ingredients')" id="pickerTab1_ingredients">食材</button>
+            </div>
+            <div id="dayPickerList1"></div>
+          </div>
+        </div>
+        <div class="notes-area"><textarea id="dayNotes1" placeholder="备注..." onchange="saveDayNotes(1)"></textarea></div>
+        <button class="save-btn" onclick="saveAndShowIngredients(1)" style="margin-top:4px;">💾 保存</button>
+        <div id="dayIngredientList1"></div>
+      </div>
+      <div class="day-column" id="dayCol2">
+        <div class="day-column-header">📅 后天 <span class="day-label" style="background:#9e9e9e;">Day 130</span></div>
+        <div class="progress-bar" style="margin-bottom:8px;"><div class="progress-fill" id="dayProgress2" style="width:0%"></div><span class="progress-text" id="dayProgressText2">0 / 0</span></div>
+        <div class="dish-list" id="dayDishList2"><div class="empty-hint">🍽️ 暂无菜品/食材</div></div>
+        <div class="add-dish-area">
+          <button class="add-dish-btn" onclick="toggleDayPicker(2)">+ 添加菜品/食材</button>
+          <div class="dish-picker" id="dayPicker2">
+            <input type="text" class="dish-picker-search" placeholder="搜索菜品或食材..." oninput="filterDayPicker(2)">
+            <div style="display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--color-border);">
+              <button class="picker-tab active" onclick="setPickerTab(2,'all')" id="pickerTab2_all">全部</button>
+              <button class="picker-tab" onclick="setPickerTab(2,'dishes')" id="pickerTab2_dishes">菜品</button>
+              <button class="picker-tab" onclick="setPickerTab(2,'ingredients')" id="pickerTab2_ingredients">食材</button>
+            </div>
+            <div id="dayPickerList2"></div>
+          </div>
+        </div>
+        <div class="notes-area"><textarea id="dayNotes2" placeholder="备注..." onchange="saveDayNotes(2)"></textarea></div>
+        <button class="save-btn" onclick="saveAndShowIngredients(2)" style="margin-top:4px;">💾 保存</button>
+        <div id="dayIngredientList2"></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+<script>
+// ==================== GAME DATA ====================
+// 在此处添加游戏数据，按以下格式填写
+const GAME_DATA = {
+  launchers: [
+    { id:"launcher_vegetable_basket", name:"蔬菜篮子", category:"蔬菜篮子", description:"产出各类蔬菜食材", produces:["ing_green_beans", "ing_potato", "ing_bell_pepper", "ing_a2bad5ce", "ing_onion", "ing_lettuce", "ing_tomato", "ing_purple_cabbage", "ing_carrot", "ing_scallion", "ing_garlic", "ing_mushroom", "ing_broccoli", "ing_chili", "ing_kailan", "ing_shiitake"] },
+    { id:"launcher_meat_shop", name:"鲜肉销售", category:"鲜肉销售", description:"产出各类鲜肉食材", produces:["ing_pork_belly", "ing_spare_ribs", "ing_lamb", "ing_whole_chicken", "ing_ribs", "ing_steak", "ing_brisket", "ing_chicken_leg", "ing_chicken_drumette", "ing_meatball", "ing_sausage", "ing_pork_hock", "ing_cheese_slice", "ing_egg", "ing_chicken_slice", "ing_chicken_breast", "ing_chicken_thigh"] },
+    { id:"launcher_fruit_basin", name:"果盆", category:"果盆", description:"产出各类水果", produces:["ing_lemon", "ing_peach", "ing_pear", "ing_orange", "ing_mango", "ing_apple", "ing_strawberry", "ing_grape", "ing_blueberry", "ing_banana"] },
+    { id:"launcher_ice_cabinet", name:"冰柜", category:"冰柜", description:"产出冷冻食材", produces:["ing_bacon", "ing_cream", "ing_chocolate", "ing_butter"] },
+    { id:"launcher_sea_fishing", name:"海钓工具", category:"海钓工具", description:"产出海鲜食材", produces:["ing_salmon", "ing_king_crab", "ing_scallop", "ing_halibut", "ing_conch", "ing_oyster", "ing_tilapia", "ing_shrimp", "ing_clam", "ing_crab", "ing_tuna", "ing_mussel", "ing_squid", "ing_sea_bass", "ing_catfish", "ing_cod", "ing_eel", "ing_lobster"] },
+    { id:"launcher_drink_station", name:"酒水饮料台", category:"酒水饮料台", description:"产出各类饮料", produces:["ing_oolong_tea", "ing_vodka", "ing_rock_sugar", "ing_cola", "ing_coffee", "ing_beer", "ing_ginger_ale", "ing_whiskey", "ing_mocha", "ing_rum", "ing_lemon_soda", "ing_coconut_milk", "ing_tonic_water", "ing_dark_roast_coffee", "ing_caramel", "ing_white_wine", "ing_water", "ing_syrup", "ing_sprinkles", "ing_red_wine", "ing_milk", "ing_green_tea", "ing_americano", "ing_energy_drink", "ing_soda", "ing_soft_candy", "ing_gin", "ing_champagne", "ing_tequila"] },
+    { id:"launcher_grain_silo", name:"五谷米仓", category:"五谷米仓", description:"产出谷物杂粮", produces:["ing_rice", "ing_wheat_flour", "ing_oat", "ing_corn", "ing_peanut", "ing_bread_crumbs"] },
+    { id:"launcher_tea_house", name:"天青色茶楼", category:"天青色茶楼", description:"产出茶楼食材", produces:["ing_fe_soy_sauce", "ing_fe_light_soy", "ing_flower_tea", "ing_tea_bag", "ing_tea_secret_1", "ing_tea_secret_2", "ing_tea_secret_3", "ing_tea_secret_4", "ing_tea_secret_5", "ing_tea_secret_6", "ing_tea_secret_7", "ing_tea_secret_8"] },
+    { id:"launcher_noodle_machine", name:"制面机器", category:"制面机器", description:"产出面食类食材", produces:["ing_lasagna", "ing_wide_noodle", "ing_italian_dumpling", "ing_ravioli", "ing_handmade_pasta", "ing_bow_tie_pasta", "ing_spiral_pasta", "ing_macaroni"] },
+    { id:"launcher_meditation_garden", name:"冥想花园", category:"冥想花园", description:"产出特殊食材", produces:["ing_mixed_herb", "ing_basil_bar_recipe_1", "ing_basil_bar_recipe_3", "ing_basil_bar_recipe_4", "ing_basil_bar_recipe_5", "ing_basil_bar_recipe_6", "ing_basil_bar_recipe_7", "ing_basil_bar_recipe_8", "ing_cinnamon", "ing_honey", "ing_vanilla_bean", "ing_vanilla_extract"] }
+  ],
+  ingredients: [
+    { id:"ing_salmon", name:"三文鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"三文鱼" },
+    { id:"ing_oolong_tea", name:"乌龙茶", category:"茶水", source:{type:"launcher",id:"launcher_drink_station"}, description:"乌龙茶" },
+    { id:"ing_pork_belly", name:"五花肉", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"五花肉" },
+    { id:"ing_vodka", name:"伏特加", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"伏特加" },
+    { id:"ing_rock_sugar", name:"冰糖", category:"糖果", source:{type:"launcher",id:"launcher_drink_station"}, description:"冰糖" },
+    { id:"ing_lasagna", name:"千层面", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"千层面" },
+    { id:"ing_cola", name:"可乐", category:"软性饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"可乐" },
+    { id:"ing_coffee", name:"咖啡", category:"咖啡", source:{type:"launcher",id:"launcher_drink_station"}, description:"咖啡" },
+    { id:"ing_beer", name:"啤酒", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"啤酒" },
+    { id:"ing_green_beans", name:"四季豆", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"四季豆" },
+    { id:"ing_potato", name:"土豆", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"土豆" },
+    { id:"ing_bacon", name:"培根", category:"畜肉", source:{type:"launcher",id:"launcher_ice_cabinet"}, description:"培根" },
+    { id:"ing_rice", name:"大米", category:"谷物杂粮", source:{type:"launcher",id:"launcher_grain_silo"}, description:"大米" },
+    { id:"ing_cream", name:"奶油", category:"奶制品", source:{type:"launcher",id:"launcher_ice_cabinet"}, description:"奶油" },
+    { id:"ing_ginger_ale", name:"姜汁水", category:"软性饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"姜汁水" },
+    { id:"ing_whiskey", name:"威士忌", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"威士忌" },
+    { id:"ing_wide_noodle", name:"宽面", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"宽面" },
+    { id:"ing_spare_ribs", name:"小排骨", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"小排骨" },
+    { id:"ing_lamb", name:"小羔羊肉", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"小羔羊肉" },
+    { id:"ing_wheat_flour", name:"小麦粉", category:"谷物杂粮", source:{type:"launcher",id:"launcher_grain_silo"}, description:"小麦粉" },
+    { id:"ing_chocolate", name:"巧克力", category:"糖果", source:{type:"launcher",id:"launcher_ice_cabinet"}, description:"巧克力" },
+    { id:"ing_king_crab", name:"帝王蟹", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"帝王蟹" },
+    { id:"ing_whole_chicken", name:"带骨全鸡", category:"禽肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"带骨全鸡" },
+    { id:"ing_bell_pepper", name:"彩椒", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"彩椒" },
+    { id:"ing_italian_dumpling", name:"意式饺子", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"意式饺子" },
+    { id:"ing_ravioli", name:"意式馄饨", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"意式馄饨" },
+    { id:"ing_scallop", name:"扇贝", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"扇贝" },
+    { id:"ing_handmade_pasta", name:"手工意面", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"手工意面" },
+    { id:"ing_ribs", name:"排骨", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"排骨" },
+    { id:"ing_mocha", name:"摩卡咖啡", category:"咖啡", source:{type:"launcher",id:"launcher_drink_station"}, description:"摩卡咖啡" },
+    { id:"ing_a2bad5ce", name:"新鲜白萝卜", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"新鲜白萝卜" },
+    { id:"ing_rum", name:"朗姆", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"朗姆" },
+    { id:"ing_lemon", name:"柠檬", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"柠檬" },
+    { id:"ing_lemon_soda", name:"柠檬汽水", category:"软性饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"柠檬汽水" },
+    { id:"ing_peach", name:"桃子", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"桃子" },
+    { id:"ing_pear", name:"梨子", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"梨子" },
+    { id:"ing_coconut_milk", name:"椰奶", category:"奶制品", source:{type:"launcher",id:"launcher_drink_station"}, description:"椰奶" },
+    { id:"ing_orange", name:"橙子", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"橙子" },
+    { id:"ing_halibut", name:"比目鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"比目鱼" },
+    { id:"ing_tonic_water", name:"汤力水", category:"软性饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"汤力水" },
+    { id:"ing_onion", name:"洋葱", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"洋葱" },
+    { id:"ing_conch", name:"海螺", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"海螺" },
+    { id:"ing_dark_roast_coffee", name:"深烘咖啡", category:"咖啡", source:{type:"launcher",id:"launcher_drink_station"}, description:"深烘咖啡" },
+    { id:"ing_mixed_herb", name:"混合香叶", category:"香料调料", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"混合香叶" },
+    { id:"ing_caramel", name:"焦糖", category:"糖果", source:{type:"launcher",id:"launcher_drink_station"}, description:"焦糖" },
+    { id:"ing_oat", name:"燕麦", category:"谷物杂粮", source:{type:"launcher",id:"launcher_grain_silo"}, description:"燕麦" },
+    { id:"ing_steak", name:"牛排", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"牛排" },
+    { id:"ing_brisket", name:"牛胸肉", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"牛胸肉" },
+    { id:"ing_corn", name:"玉米", category:"谷物杂粮", source:{type:"launcher",id:"launcher_grain_silo"}, description:"玉米" },
+    { id:"ing_chicken_leg", name:"琵琶腿", category:"禽肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"琵琶腿" },
+    { id:"ing_lettuce", name:"生菜", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"生菜" },
+    { id:"ing_oyster", name:"生蚝", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"生蚝" },
+    { id:"ing_tomato", name:"番茄", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"番茄" },
+    { id:"ing_white_wine", name:"白葡萄酒", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"白葡萄酒" },
+    { id:"ing_water", name:"矿泉水", category:"软性饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"矿泉水" },
+    { id:"ing_syrup", name:"糖浆", category:"糖果", source:{type:"launcher",id:"launcher_drink_station"}, description:"糖浆" },
+    { id:"ing_sprinkles", name:"糖针", category:"糖果", source:{type:"launcher",id:"launcher_drink_station"}, description:"糖针" },
+    { id:"ing_purple_cabbage", name:"紫甘蓝", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"紫甘蓝" },
+    { id:"ing_red_wine", name:"红葡萄酒", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"红葡萄酒" },
+    { id:"ing_milk", name:"纯牛奶", category:"奶制品", source:{type:"launcher",id:"launcher_drink_station"}, description:"纯牛奶" },
+    { id:"ing_green_tea", name:"绿茶", category:"茶水", source:{type:"launcher",id:"launcher_drink_station"}, description:"绿茶" },
+    { id:"ing_basil_bar_recipe_1", name:"罗勒餐吧配方1", category:"威尼斯秘制配方", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"罗勒餐吧配方1" },
+    { id:"ing_basil_bar_recipe_3", name:"罗勒餐吧配方3", category:"威尼斯秘制配方", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"罗勒餐吧配方3" },
+    { id:"ing_basil_bar_recipe_4", name:"罗勒餐吧配方4", category:"威尼斯秘制配方", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"罗勒餐吧配方4" },
+    { id:"ing_basil_bar_recipe_5", name:"罗勒餐吧配方5", category:"威尼斯秘制配方", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"罗勒餐吧配方5" },
+    { id:"ing_basil_bar_recipe_6", name:"罗勒餐吧配方6", category:"威尼斯秘制配方", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"罗勒餐吧配方6" },
+    { id:"ing_basil_bar_recipe_7", name:"罗勒餐吧配方7", category:"威尼斯秘制配方", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"罗勒餐吧配方7" },
+    { id:"ing_basil_bar_recipe_8", name:"罗勒餐吧配方8", category:"威尼斯秘制配方", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"罗勒餐吧配方8" },
+    { id:"ing_tilapia", name:"罗非鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"罗非鱼" },
+    { id:"ing_americano", name:"美式咖啡", category:"咖啡", source:{type:"launcher",id:"launcher_drink_station"}, description:"美式咖啡" },
+    { id:"ing_chicken_drumette", name:"翅根", category:"禽肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"翅根" },
+    { id:"ing_meatball", name:"肉丸", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"肉丸" },
+    { id:"ing_cinnamon", name:"肉桂", category:"香料调料", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"肉桂" },
+    { id:"ing_sausage", name:"肉肠", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"肉肠" },
+    { id:"ing_pork_hock", name:"肘子", category:"畜肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"肘子" },
+    { id:"ing_fe_soy_sauce", name:"肥鹅牌酱油", category:"香料调料", source:{type:"launcher",id:"launcher_tea_house"}, description:"肥鹅牌酱油" },
+    { id:"ing_fe_light_soy", name:"肥鹅白酱油", category:"香料调料", source:{type:"launcher",id:"launcher_tea_house"}, description:"肥鹅白酱油" },
+    { id:"ing_carrot", name:"胡萝卜", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"胡萝卜" },
+    { id:"ing_energy_drink", name:"能量饮料", category:"软性饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"能量饮料" },
+    { id:"ing_mango", name:"芒果", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"芒果" },
+    { id:"ing_cheese_slice", name:"芝士片", category:"奶制品", source:{type:"launcher",id:"launcher_meat_shop"}, description:"芝士片" },
+    { id:"ing_peanut", name:"花生", category:"谷物杂粮", source:{type:"launcher",id:"launcher_grain_silo"}, description:"花生" },
+    { id:"ing_flower_tea", name:"花茶", category:"茶水", source:{type:"launcher",id:"launcher_tea_house"}, description:"花茶" },
+    { id:"ing_soda", name:"苏打水", category:"软性饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"苏打水" },
+    { id:"ing_apple", name:"苹果", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"苹果" },
+    { id:"ing_tea_bag", name:"茶包", category:"茶水", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶包" },
+    { id:"ing_tea_secret_1", name:"茶楼秘制配方1", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方1" },
+    { id:"ing_tea_secret_2", name:"茶楼秘制配方2", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方2" },
+    { id:"ing_tea_secret_3", name:"茶楼秘制配方3", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方3" },
+    { id:"ing_tea_secret_4", name:"茶楼秘制配方4", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方4" },
+    { id:"ing_tea_secret_5", name:"茶楼秘制配方5", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方5" },
+    { id:"ing_tea_secret_6", name:"茶楼秘制配方6", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方6" },
+    { id:"ing_tea_secret_7", name:"茶楼秘制配方7", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方7" },
+    { id:"ing_tea_secret_8", name:"茶楼秘制配方8", category:"茶楼菜谱", source:{type:"launcher",id:"launcher_tea_house"}, description:"茶楼秘制配方8" },
+    { id:"ing_strawberry", name:"草莓", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"草莓" },
+    { id:"ing_grape", name:"葡萄", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"葡萄" },
+    { id:"ing_scallion", name:"葱段", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"葱段" },
+    { id:"ing_garlic", name:"蒜", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"蒜" },
+    { id:"ing_blueberry", name:"蓝莓", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"蓝莓" },
+    { id:"ing_mushroom", name:"蘑菇", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"蘑菇" },
+    { id:"ing_shrimp", name:"虾", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"虾" },
+    { id:"ing_egg", name:"蛋", category:"禽肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"蛋" },
+    { id:"ing_clam", name:"蛤蜊", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"蛤蜊" },
+    { id:"ing_honey", name:"蜂蜜", category:"糖果", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"蜂蜜" },
+    { id:"ing_bow_tie_pasta", name:"蝴蝶面", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"蝴蝶面" },
+    { id:"ing_crab", name:"螃蟹", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"螃蟹" },
+    { id:"ing_spiral_pasta", name:"螺旋面", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"螺旋面" },
+    { id:"ing_broccoli", name:"西兰花", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"西兰花" },
+    { id:"ing_soft_candy", name:"软糖", category:"糖果", source:{type:"launcher",id:"launcher_drink_station"}, description:"软糖" },
+    { id:"ing_chili", name:"辣椒", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"辣椒" },
+    { id:"ing_macaroni", name:"通心粉", category:"特色面食", source:{type:"launcher",id:"launcher_noodle_machine"}, description:"通心粉" },
+    { id:"ing_tuna", name:"金枪鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"金枪鱼" },
+    { id:"ing_gin", name:"金酒", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"金酒" },
+    { id:"ing_kailan", name:"青翠芥兰", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"青翠芥兰" },
+    { id:"ing_mussel", name:"青贝", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"青贝" },
+    { id:"ing_bread_crumbs", name:"面包糠", category:"谷物杂粮", source:{type:"launcher",id:"launcher_grain_silo"}, description:"面包糠" },
+    { id:"ing_champagne", name:"香槟", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"香槟" },
+    { id:"ing_vanilla_bean", name:"香草籽", category:"香料调料", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"香草籽" },
+    { id:"ing_vanilla_extract", name:"香草精", category:"香料调料", source:{type:"launcher",id:"launcher_meditation_garden"}, description:"香草精" },
+    { id:"ing_shiitake", name:"香菇", category:"蔬菜", source:{type:"launcher",id:"launcher_vegetable_basket"}, description:"香菇" },
+    { id:"ing_banana", name:"香蕉", category:"水果", source:{type:"launcher",id:"launcher_fruit_basin"}, description:"香蕉" },
+    { id:"ing_squid", name:"鱿鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"鱿鱼" },
+    { id:"ing_sea_bass", name:"鲈鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"鲈鱼" },
+    { id:"ing_catfish", name:"鲶鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"鲶鱼" },
+    { id:"ing_cod", name:"鳕鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"鳕鱼" },
+    { id:"ing_eel", name:"鳗鱼", category:"无壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"鳗鱼" },
+    { id:"ing_chicken_slice", name:"鸡肉片", category:"禽肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"鸡肉片" },
+    { id:"ing_chicken_breast", name:"鸡胸肉", category:"禽肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"鸡胸肉" },
+    { id:"ing_chicken_thigh", name:"鸡腿", category:"禽肉", source:{type:"launcher",id:"launcher_meat_shop"}, description:"鸡腿" },
+    { id:"ing_butter", name:"黄油", category:"奶制品", source:{type:"launcher",id:"launcher_ice_cabinet"}, description:"黄油" },
+    { id:"ing_tequila", name:"龙舌兰", category:"发酵饮料", source:{type:"launcher",id:"launcher_drink_station"}, description:"龙舌兰" },
+    { id:"ing_lobster", name:"龙虾", category:"带壳海鲜", source:{type:"launcher",id:"launcher_sea_fishing"}, description:"龙虾" }
+  ],
+  cookingUtensils: [
+    { id:"cu_stove", name:"灶台", category:"灶台", description:"用于炒菜、煮菜等家常烹饪", produces:[] },
+    { id:"cu_oven", name:"烤箱", category:"烤箱", description:"用于烘焙和烤制", produces:[] },
+    { id:"cu_grill", name:"烧烤架", category:"烧烤架", description:"用于烧烤类菜品", produces:[] },
+    { id:"cu_blender", name:"搅拌机", category:"搅拌机", description:"用于制作饮品和果汁", produces:[] },
+    { id:"cu_prep_table", name:"料理台", category:"料理台", description:"用于冷盘和预处理", produces:[] },
+    { id:"cu_stew_pot", name:"炖煮锅", category:"炖煮锅", description:"用于炖煮类菜品", produces:[] },
+    { id:"cu_glass_bowl", name:"玻璃碗", category:"料理台", description:"用于搅拌混合、揉制面团", produces:[] },
+    { id:"cu_tea_steamer", name:"茶楼蒸笼", category:"茶楼蒸笼", description:"茶楼专用蒸笼，用于蒸制各类点心", produces:[] }
+  ],
+  dishes: [
+    { id:"dish_lettuce_salad", name:"生菜沙拉", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lettuce", "qty": 1}], description:"生食冷盘菜品 - 生菜沙拉" },
+    { id:"dish_sugar_tomato", name:"糖拌番茄", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_tomato", "qty": 1}], description:"生食冷盘菜品 - 糖拌番茄" },
+    { id:"dish_bell_pepper_chips", name:"彩椒脆片", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_bell_pepper", "qty": 1}], description:"生食冷盘菜品 - 彩椒脆片" },
+    { id:"dish_raw_carrot_sticks", name:"生切胡萝卜条", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_carrot", "qty": 1}], description:"生食冷盘菜品 - 生切胡萝卜条" },
+    { id:"dish_mushroom_cheese_roll", name:"菌香芝士卷", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_onion", "qty": 1}, {"id": "ing_cheese_slice", "qty": 1}], description:"生食冷盘菜品 - 菌香芝士卷" },
+    { id:"dish_cold_chicken_roll", name:"凉拌鸡肉卷", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_chicken_slice", "qty": 1}], description:"生食冷盘菜品 - 凉拌鸡肉卷" },
+    { id:"dish_mango_cubes", name:"酸甜芒果丁", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_mango", "qty": 1}], description:"生食冷盘菜品 - 酸甜芒果丁" },
+    { id:"dish_garden_salad", name:"田园沙拉", category:"生食冷盘", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lettuce", "qty": 1}, {"id": "ing_tomato", "qty": 1}, {"id": "ing_broccoli", "qty": 1}], description:"生食冷盘菜品 - 田园沙拉" },
+    { id:"dish_milk_green_tea", name:"清新奶绿", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_green_tea", "qty": 1}, {"id": "ing_milk", "qty": 1}], description:"奶茶甜点菜品 - 清新奶绿" },
+    { id:"dish_vanilla_green_tea", name:"香草绿茶", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_vanilla_extract", "qty": 1}, {"id": "ing_green_tea", "qty": 1}], description:"奶茶甜点菜品 - 香草绿茶" },
+    { id:"dish_bubble_tea", name:"珍珠奶茶", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_green_tea", "qty": 1}, {"id": "ing_milk", "qty": 1}, {"id": "ing_syrup", "qty": 1}], description:"奶茶甜点菜品 - 珍珠奶茶" },
+    { id:"dish_choc_blueberry", name:"巧克力脆皮蓝莓", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_blueberry", "qty": 1}, {"id": "ing_chocolate", "qty": 1}], description:"奶茶甜点菜品 - 巧克力脆皮蓝莓" },
+    { id:"dish_vanilla_mousse_milk_tea", name:"香草慕斯奶绿", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_vanilla_extract", "qty": 1}, {"id": "ing_green_tea", "qty": 1}, {"id": "ing_milk", "qty": 1}], description:"奶茶甜点菜品 - 香草慕斯奶绿" },
+    { id:"dish_honey_lemonade", name:"蜂蜜柠檬水", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lemon", "qty": 1}, {"id": "ing_honey", "qty": 1}], description:"奶茶甜点菜品 - 蜂蜜柠檬水" },
+    { id:"dish_mango_mousse", name:"芒果慕斯", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_water", "qty": 1}, {"id": "ing_mango", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}], description:"奶茶甜点菜品 - 芒果慕斯" },
+    { id:"dish_butter_ice_cream", name:"黄油冰淇淋", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}], description:"奶茶甜点菜品 - 黄油冰淇淋" },
+    { id:"dish_snow_green_tea", name:"雪顶绿茶", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_green_tea", "qty": 1}, {"id": "ing_cream", "qty": 1}], description:"奶茶甜点菜品 - 雪顶绿茶" },
+    { id:"dish_affogato", name:"阿芙佳朵", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_mocha", "qty": 1}, {"id": "dish_butter_ice_cream", "qty": 1}], description:"奶茶甜点菜品 - 阿芙佳朵" },
+    { id:"dish_chocolate_ice_cream", name:"巧克力冰淇淋", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_vanilla_bean", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_chocolate", "qty": 1}], description:"奶茶甜点菜品 - 巧克力冰淇淋" },
+    { id:"dish_cinnamon_apple_panna_cotta", name:"肉桂苹果奶冻", category:"奶茶甜点", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_cinnamon", "qty": 1}, {"id": "ing_vanilla_extract", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_apple", "qty": 1}], description:"奶茶甜点菜品 - 肉桂苹果奶冻" },
+    { id:"dish_marshmallow_hot_choc", name:"棉花软糖热巧克力", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_cream", "qty": 1}, {"id": "ing_soft_candy", "qty": 1}, {"id": "dish_hot_cocoa", "qty": 1}], description:"奶茶甜点菜品 - 棉花软糖热巧克力" },
+    { id:"dish_hot_cocoa", name:"热可可", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_milk", "qty": 1}, {"id": "ing_chocolate", "qty": 1}], description:"奶茶甜点菜品 - 热可可" },
+    { id:"dish_sprinkles_ice_cream", name:"糖针冰淇淋", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_milk", "qty": 1}, {"id": "ing_sprinkles", "qty": 1}], description:"奶茶甜点菜品 - 糖针冰淇淋" },
+    { id:"dish_yuanyang_milk_tea", name:"厚顶鸳鸯奶茶", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_coffee", "qty": 1}, {"id": "ing_oolong_tea", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}], description:"奶茶甜点菜品 - 厚顶鸳鸯奶茶" },
+    { id:"dish_goose_lemon_tea", name:"鹅鹅手打柠檬茶", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_flower_tea", "qty": 1}, {"id": "ing_lemon", "qty": 1}], description:"奶茶甜点菜品 - 鹅鹅手打柠檬茶" },
+    { id:"dish_pear_sorbet", name:"香梨雪酪", category:"奶茶甜点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_vanilla_bean", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_pear", "qty": 1}], description:"奶茶甜点菜品 - 香梨雪酪" },
+    { id:"dish_veggie_skewer", name:"风味蔬菜烤串", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_mushroom", "qty": 1}], description:"街边烧烤菜品 - 风味蔬菜烤串" },
+    { id:"dish_cumin_sausage", name:"孜然烤肉肠", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_sausage", "qty": 1}], description:"街边烧烤菜品 - 孜然烤肉肠" },
+    { id:"dish_crispy_drumette", name:"脆皮翅根", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_chicken_drumette", "qty": 1}], description:"街边烧烤菜品 - 脆皮翅根" },
+    { id:"dish_stuffed_bell_pepper", name:"锡纸彩椒瓤", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_bell_pepper", "qty": 1}, {"id": "ing_mushroom", "qty": 1}], description:"街边烧烤菜品 - 锡纸彩椒瓤" },
+    { id:"dish_grilled_mushroom", name:"炭烤鲜蘑", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}], description:"街边烧烤菜品 - 炭烤鲜蘑" },
+    { id:"dish_baked_potato_slice", name:"烤土豆片", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_potato", "qty": 1}], description:"街边烧烤菜品 - 烤土豆片" },
+    { id:"dish_grilled_pork_belly", name:"炭烤熏肉", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_pork_belly", "qty": 1}], description:"街边烧烤菜品 - 炭烤熏肉" },
+    { id:"dish_cumin_ribs", name:"孜然椒盐排骨", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_spare_ribs", "qty": 1}], description:"街边烧烤菜品 - 孜然椒盐排骨" },
+    { id:"dish_smoked_brisket", name:"烟熏牛胸肉", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_brisket", "qty": 1}], description:"街边烧烤菜品 - 烟熏牛胸肉" },
+    { id:"dish_grilled_chicken_breast", name:"炭烤鸡胸肉", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_chicken_breast", "qty": 1}], description:"街边烧烤菜品 - 炭烤鸡胸肉" },
+    { id:"dish_roast_lamb_rack", name:"热烤大羊排", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_ribs", "qty": 1}], description:"街边烧烤菜品 - 热烤大羊排" },
+    { id:"dish_roast_pork_hock", name:"黄金烤肘子", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_pork_hock", "qty": 1}], description:"街边烧烤菜品 - 黄金烤肘子" },
+    { id:"dish_smoked_butter_pork", name:"烟熏黄油五花", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_onion", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_pork_belly", "qty": 1}], description:"街边烧烤菜品 - 烟熏黄油五花" },
+    { id:"dish_grilled_steak", name:"炭烤牛排", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_steak", "qty": 1}], description:"街边烧烤菜品 - 炭烤牛排" },
+    { id:"dish_grilled_chicken_leg", name:"炭烤琵琶腿", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_chicken_leg", "qty": 1}], description:"街边烧烤菜品 - 炭烤琵琶腿" },
+    { id:"dish_honey_roast_chicken", name:"蜜汁烤鸡", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_whole_chicken", "qty": 1}], description:"街边烧烤菜品 - 蜜汁烤鸡" },
+    { id:"dish_grilled_lamb", name:"炙烤羔羊肉", category:"街边烧烤", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_lamb", "qty": 1}], description:"街边烧烤菜品 - 炙烤羔羊肉" },
+    { id:"dish_lemon_herb_chicken", name:"柠檬香草烤鸡", category:"街边烧烤", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_whole_chicken", "qty": 1}, {"id": "ing_lemon", "qty": 1}], description:"街边烧烤菜品 - 柠檬香草烤鸡" },
+    { id:"dish_blueberry_juice", name:"鲜榨蓝莓汁", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_blueberry", "qty": 1}], description:"鲜榨果汁菜品 - 鲜榨蓝莓汁" },
+    { id:"dish_strawberry_fizz", name:"草莓果露", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_strawberry", "qty": 1}], description:"鲜榨果汁菜品 - 草莓果露" },
+    { id:"dish_lemon_juice", name:"手打柠檬汁", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_lemon", "qty": 1}], description:"鲜榨果汁菜品 - 手打柠檬汁" },
+    { id:"dish_orange_juice", name:"鲜榨橙汁", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_orange", "qty": 1}], description:"鲜榨果汁菜品 - 鲜榨橙汁" },
+    { id:"dish_grape_juice", name:"葡萄果肉饮", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_grape", "qty": 1}], description:"鲜榨果汁菜品 - 葡萄果肉饮" },
+    { id:"dish_apple_juice", name:"苹果果饮", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_apple", "qty": 1}], description:"鲜榨果汁菜品 - 苹果果饮" },
+    { id:"dish_banana_puree", name:"香蕉泥", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_banana", "qty": 1}], description:"鲜榨果汁菜品 - 香蕉泥" },
+    { id:"dish_mango_juice", name:"热带芒果汁", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_mango", "qty": 1}], description:"鲜榨果汁菜品 - 热带芒果汁" },
+    { id:"dish_pear_water", name:"清爽梨子水", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_pear", "qty": 1}], description:"鲜榨果汁菜品 - 清爽梨子水" },
+    { id:"dish_tomato_juice", name:"鲜榨番茄汁", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_tomato", "qty": 1}], description:"鲜榨果汁菜品 - 鲜榨番茄汁" },
+    { id:"dish_peach_nectar", name:"冰镇水蜜桃露", category:"鲜榨果汁", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_peach", "qty": 1}], description:"鲜榨果汁菜品 - 冰镇水蜜桃露" },
+    { id:"dish_fried_sunny_egg", name:"油炸太阳蛋", category:"炸物小吃", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_egg", "qty": 1}], description:"炸物小吃菜品 - 油炸太阳蛋" },
+    { id:"dish_fried_bacon", name:"煎炸培根", category:"炸物小吃", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_bacon", "qty": 1}], description:"炸物小吃菜品 - 煎炸培根" },
+    { id:"dish_pan_fried_meatball", name:"香煎肉丸", category:"炸物小吃", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_meatball", "qty": 1}], description:"炸物小吃菜品 - 香煎肉丸" },
+    { id:"dish_fried_chicken_thigh", name:"酥炸大鸡腿", category:"炸物小吃", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_onion", "qty": 1}, {"id": "ing_chicken_thigh", "qty": 1}], description:"炸物小吃菜品 - 酥炸大鸡腿" },
+    { id:"dish_fried_milk", name:"脆皮炸鲜奶", category:"炸物小吃", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_milk", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_bread_crumbs", "qty": 1}], description:"炸物小吃菜品 - 脆皮炸鲜奶" },
+    { id:"dish_fried_shrimp_ball", name:"酥炸虾球", category:"炸物小吃", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_shrimp", "qty": 1}, {"id": "dish_dry_skin", "qty": 1}], description:"炸物小吃菜品 - 酥炸虾球" },
+    { id:"dish_spring_rolls", name:"三丝春卷", category:"炸物小吃", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_carrot", "qty": 1}, {"id": "ing_purple_cabbage", "qty": 1}, {"id": "ing_scallion", "qty": 1}, {"id": "dish_dry_skin", "qty": 1}], description:"炸物小吃菜品 - 三丝春卷" },
+    { id:"dish_hand_torn_purple_cabbage", name:"手撕紫甘蓝", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_purple_cabbage", "qty": 1}], description:"家常菜菜品 - 手撕紫甘蓝" },
+    { id:"dish_bell_pepper_potato", name:"彩椒土豆丝", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_bell_pepper", "qty": 1}, {"id": "ing_potato", "qty": 1}], description:"家常菜菜品 - 彩椒土豆丝" },
+    { id:"dish_chicken_mushroom_soup", name:"鸡肉蘑菇汤", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_water", "qty": 1}, {"id": "ing_chicken_drumette", "qty": 1}], description:"家常菜菜品 - 鸡肉蘑菇汤" },
+    { id:"dish_stir_fry_broccoli", name:"爆炒西兰花", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_broccoli", "qty": 1}], description:"家常菜菜品 - 爆炒西兰花" },
+    { id:"dish_onion_rice", name:"焦香洋葱饭", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_onion", "qty": 1}, {"id": "ing_rice", "qty": 1}], description:"家常菜菜品 - 焦香洋葱饭" },
+    { id:"dish_butter_rice", name:"黄油拌饭", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_rice", "qty": 1}], description:"家常菜菜品 - 黄油拌饭" },
+    { id:"dish_red_wine_steak", name:"红酒酱牛排", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_steak", "qty": 1}, {"id": "ing_red_wine", "qty": 1}], description:"家常菜菜品 - 红酒酱牛排" },
+    { id:"dish_stir_fry_green_beans", name:"清炒四季豆", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_green_beans", "qty": 1}], description:"家常菜菜品 - 清炒四季豆" },
+    { id:"dish_white_wine_chicken", name:"白葡熏鸡胸", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_chicken_breast", "qty": 1}, {"id": "ing_white_wine", "qty": 1}], description:"家常菜菜品 - 白葡熏鸡胸" },
+    { id:"dish_red_wine_ribs", name:"红酒烧排骨", category:"家常菜", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_ribs", "qty": 1}, {"id": "ing_red_wine", "qty": 1}], description:"家常菜菜品 - 红酒烧排骨" },
+    { id:"dish_caramel_cinnamon_apple", name:"焦糖肉桂苹果", category:"家常菜", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_cinnamon", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_apple", "qty": 1}, {"id": "ing_caramel", "qty": 1}], description:"家常菜菜品 - 焦糖肉桂苹果" },
+    { id:"dish_pan_seared_scallop", name:"油煎扇贝", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_scallop", "qty": 1}], description:"海鲜大餐菜品 - 油煎扇贝" },
+    { id:"dish_grilled_eel", name:"酥烤鳗鱼", category:"海鲜大餐", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_eel", "qty": 1}], description:"海鲜大餐菜品 - 酥烤鳗鱼" },
+    { id:"dish_stir_fry_clam", name:"清炒蛤蜊", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_clam", "qty": 1}], description:"海鲜大餐菜品 - 清炒蛤蜊" },
+    { id:"dish_grilled_shrimp_skewer", name:"炭烤虾串", category:"海鲜大餐", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_shrimp", "qty": 1}], description:"海鲜大餐菜品 - 炭烤虾串" },
+    { id:"dish_pan_fried_tilapia", name:"香煎罗非鱼", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tilapia", "qty": 1}], description:"海鲜大餐菜品 - 香煎罗非鱼" },
+    { id:"dish_grilled_sea_bass", name:"煎烤鲈鱼", category:"海鲜大餐", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_sea_bass", "qty": 1}], description:"海鲜大餐菜品 - 煎烤鲈鱼" },
+    { id:"dish_roasted_crab", name:"熟烤肥蟹", category:"海鲜大餐", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_crab", "qty": 1}], description:"海鲜大餐菜品 - 熟烤肥蟹" },
+    { id:"dish_fresh_oyster", name:"新鲜生蚝", category:"海鲜大餐", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_oyster", "qty": 1}], description:"海鲜大餐菜品 - 新鲜生蚝" },
+    { id:"dish_grilled_tuna", name:"炭烧金枪鱼排", category:"海鲜大餐", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_tuna", "qty": 1}], description:"海鲜大餐菜品 - 炭烧金枪鱼排" },
+    { id:"dish_crispy_cod", name:"酥香鳕鱼", category:"海鲜大餐", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_cod", "qty": 1}], description:"海鲜大餐菜品 - 酥香鳕鱼" },
+    { id:"dish_smoked_salmon", name:"烟熏三文鱼", category:"海鲜大餐", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_salmon", "qty": 1}], description:"海鲜大餐菜品 - 烟熏三文鱼" },
+    { id:"dish_butter_lobster", name:"油炙龙虾", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_lobster", "qty": 1}], description:"海鲜大餐菜品 - 油炙龙虾" },
+    { id:"dish_garlic_shrimp", name:"蒜香炒虾", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "ing_white_wine", "qty": 1}], description:"海鲜大餐菜品 - 蒜香炒虾" },
+    { id:"dish_whiskey_salmon", name:"威士忌三文鱼", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_honey", "qty": 1}, {"id": "ing_salmon", "qty": 1}, {"id": "ing_whiskey", "qty": 1}], description:"海鲜大餐菜品 - 威士忌三文鱼" },
+    { id:"dish_wine_catfish", name:"醇香鲶鱼块", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_carrot", "qty": 1}, {"id": "ing_garlic", "qty": 1}, {"id": "ing_catfish", "qty": 1}, {"id": "ing_white_wine", "qty": 1}], description:"海鲜大餐菜品 - 醇香鲶鱼块" },
+    { id:"dish_sauce_halibut", name:"酱烧比目鱼", category:"海鲜大餐", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_halibut", "qty": 1}, {"id": "ing_white_wine", "qty": 1}], description:"海鲜大餐菜品 - 酱烧比目鱼" },
+    { id:"dish_garlic_butter_king_crab", name:"蒜香黄油帝王蟹", category:"海鲜大餐", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_king_crab", "qty": 1}], description:"海鲜大餐菜品 - 蒜香黄油帝王蟹" },
+    { id:"dish_wine_mussel", name:"酒烧青贝", category:"海鲜大餐", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_clam", "qty": 1}, {"id": "ing_white_wine", "qty": 1}], description:"海鲜大餐菜品 - 酒烧青贝" },
+    { id:"dish_seafood_soup", name:"什锦海鲜汤", category:"海鲜大餐", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_squid", "qty": 1}, {"id": "ing_scallop", "qty": 1}], description:"海鲜大餐菜品 - 什锦海鲜汤" },
+    { id:"dish_steamed_lobster", name:"蒸龙虾", category:"海鲜大餐", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_lobster", "qty": 1}], description:"海鲜大餐菜品 - 蒸龙虾" },
+    { id:"dish_grilled_conch", name:"炭烤海螺", category:"海鲜大餐", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_conch", "qty": 1}], description:"海鲜大餐菜品 - 炭烤海螺" },
+    { id:"dish_espresso_martini", name:"浓缩马提尼", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_americano", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_vodka", "qty": 1}], description:"混合饮品菜品 - 浓缩马提尼" },
+    { id:"dish_hot_toddy", name:"热托迪", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_oolong_tea", "qty": 1}, {"id": "ing_lemon", "qty": 1}, {"id": "ing_honey", "qty": 1}, {"id": "ing_whiskey", "qty": 1}], description:"混合饮品菜品 - 热托迪" },
+    { id:"dish_coconut_paloma", name:"椰香帕洛玛", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lemon", "qty": 1}, {"id": "ing_tequila", "qty": 1}, {"id": "ing_coconut_milk", "qty": 1}], description:"混合饮品菜品 - 椰香帕洛玛" },
+    { id:"dish_lemon_beer", name:"柠檬气泡啤酒", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_beer", "qty": 1}, {"id": "ing_lemon_soda", "qty": 1}], description:"混合饮品菜品 - 柠檬气泡啤酒" },
+    { id:"dish_bloody_mary", name:"血腥玛丽", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_chili", "qty": 1}, {"id": "ing_crab", "qty": 1}, {"id": "ing_vodka", "qty": 1}, {"id": "dish_tomato_juice", "qty": 1}], description:"混合饮品菜品 - 血腥玛丽" },
+    { id:"dish_tequila_screwdriver", name:"龙舌兰螺丝刀", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_tequila", "qty": 1}, {"id": "dish_orange_juice", "qty": 1}], description:"混合饮品菜品 - 龙舌兰螺丝刀" },
+    { id:"dish_whiskey_soda", name:"威士忌苏打", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_whiskey", "qty": 1}, {"id": "ing_soda", "qty": 1}], description:"混合饮品菜品 - 威士忌苏打" },
+    { id:"dish_vodka_tonic", name:"伏特加汤力", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_vodka", "qty": 1}, {"id": "ing_tonic_water", "qty": 1}], description:"混合饮品菜品 - 伏特加汤力" },
+    { id:"dish_rum_cola", name:"朗姆可乐", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_rum", "qty": 1}, {"id": "ing_cola", "qty": 1}], description:"混合饮品菜品 - 朗姆可乐" },
+    { id:"dish_choc_martini", name:"巧克力马提尼", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_cream", "qty": 1}, {"id": "ing_chocolate", "qty": 1}, {"id": "ing_vodka", "qty": 1}], description:"混合饮品菜品 - 巧克力马提尼" },
+    { id:"dish_whiskey_sour", name:"威士忌酸酒", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_whiskey", "qty": 1}, {"id": "dish_lemon_juice", "qty": 1}], description:"混合饮品菜品 - 威士忌酸酒" },
+    { id:"dish_irish_coffee", name:"爱尔兰咖啡", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_dark_roast_coffee", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_whiskey", "qty": 1}], description:"混合饮品菜品 - 爱尔兰咖啡" },
+    { id:"dish_georgia_peach", name:"乔治亚桃子", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_strawberry", "qty": 1}, {"id": "ing_rum", "qty": 1}, {"id": "dish_peach_nectar", "qty": 1}], description:"混合饮品菜品 - 乔治亚桃子" },
+    { id:"dish_french_75", name:"法式75", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_gin", "qty": 1}, {"id": "dish_lemon_juice", "qty": 1}], description:"混合饮品菜品 - 法式75" },
+    { id:"dish_bellini", name:"贝利尼", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_champagne", "qty": 1}, {"id": "dish_peach_nectar", "qty": 1}], description:"混合饮品菜品 - 贝利尼" },
+    { id:"dish_gin_tonic", name:"金汤力", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_gin", "qty": 1}, {"id": "ing_tonic_water", "qty": 1}], description:"混合饮品菜品 - 金汤力" },
+    { id:"dish_mimosa", name:"含羞草酒", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_champagne", "qty": 1}, {"id": "dish_lemon_juice", "qty": 1}], description:"混合饮品菜品 - 含羞草酒" },
+    { id:"dish_energy_vodka", name:"能量伏特加", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_vodka", "qty": 1}, {"id": "ing_energy_drink", "qty": 1}], description:"混合饮品菜品 - 能量伏特加" },
+    { id:"dish_moscow_mule", name:"莫斯科之骡", category:"混合饮品", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lemon", "qty": 1}, {"id": "ing_vodka", "qty": 1}, {"id": "ing_ginger_ale", "qty": 1}], description:"混合饮品菜品 - 莫斯科之骡" },
+    { id:"dish_small_round_bun", name:"小圆包", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "dish_round_dough", "qty": 1}], description:"烘焙面点菜品 - 小圆包" },
+    { id:"dish_baked_hotdog_bun", name:"烤热狗面包", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "dish_hotdog_dough", "qty": 1}], description:"烘焙面点菜品 - 烤热狗面包" },
+    { id:"dish_baked_bagel", name:"烤贝果", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "dish_ring_bread", "qty": 1}], description:"烘焙面点菜品 - 烤贝果" },
+    { id:"dish_hamburger", name:"汉堡包", category:"烘焙面点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lettuce", "qty": 1}, {"id": "ing_tomato", "qty": 1}, {"id": "dish_grilled_meat_patty", "qty": 1}, {"id": "dish_small_round_bun", "qty": 1}], description:"烘焙面点菜品 - 汉堡包" },
+    { id:"dish_bacon_burger", name:"培根汉堡", category:"烘焙面点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lettuce", "qty": 1}, {"id": "dish_fried_bacon", "qty": 1}, {"id": "dish_grilled_meat_patty", "qty": 1}, {"id": "dish_small_round_bun", "qty": 1}], description:"烘焙面点菜品 - 培根汉堡" },
+    { id:"dish_breakfast_sandwich", name:"早餐三明治", category:"烘焙面点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_cheese_slice", "qty": 1}, {"id": "dish_fried_sunny_egg", "qty": 1}, {"id": "dish_fried_bacon", "qty": 1}, {"id": "dish_small_round_bun", "qty": 1}], description:"烘焙面点菜品 - 早餐三明治" },
+    { id:"dish_salmon_bagel", name:"三文鱼贝果", category:"烘焙面点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_lettuce", "qty": 1}, {"id": "dish_smoked_salmon", "qty": 1}, {"id": "dish_baked_bagel", "qty": 1}], description:"烘焙面点菜品 - 三文鱼贝果" },
+    { id:"dish_sausage_hotdog", name:"烤肠热狗", category:"烘焙面点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "dish_cumin_sausage", "qty": 1}, {"id": "dish_baked_hotdog_bun", "qty": 1}], description:"烘焙面点菜品 - 烤肠热狗" },
+    { id:"dish_cheese_hotdog", name:"芝士热狗", category:"烘焙面点", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_cheese_slice", "qty": 1}, {"id": "dish_cumin_sausage", "qty": 1}, {"id": "dish_baked_hotdog_bun", "qty": 1}], description:"烘焙面点菜品 - 芝士热狗" },
+    { id:"dish_blueberry_pie", name:"蓝莓果派", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_blueberry", "qty": 1}, {"id": "dish_puff_pastry", "qty": 1}], description:"烘焙面点菜品 - 蓝莓果派" },
+    { id:"dish_apple_pie", name:"甜苹果派", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_apple", "qty": 1}, {"id": "dish_puff_pastry", "qty": 1}], description:"烘焙面点菜品 - 甜苹果派" },
+    { id:"dish_quiche_lorraine", name:"洛林乳蛋饼", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_onion", "qty": 1}, {"id": "ing_bacon", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "dish_puff_pastry", "qty": 1}], description:"烘焙面点菜品 - 洛林乳蛋饼" },
+    { id:"dish_onion_bagel", name:"焦香洋葱贝果", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_onion", "qty": 1}, {"id": "dish_ring_bread", "qty": 1}], description:"烘焙面点菜品 - 焦香洋葱贝果" },
+    { id:"dish_berry_honey_oat", name:"浆果蜂蜜燕麦碗", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_blueberry", "qty": 1}, {"id": "ing_strawberry", "qty": 1}, {"id": "ing_honey", "qty": 1}, {"id": "ing_oat", "qty": 1}], description:"烘焙面点菜品 - 浆果蜂蜜燕麦碗" },
+    { id:"dish_garlic_bread", name:"蒜香面包", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"烘焙面点菜品 - 蒜香面包" },
+    { id:"dish_cinnamon_roll", name:"糖霜肉桂卷", category:"烘焙面点", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_cinnamon", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"烘焙面点菜品 - 糖霜肉桂卷" },
+    { id:"dish_round_dough", name:"圆面团", category:"预料理食材", cookingUtensil:"cu_glass_bowl",
+      ingredients:[{"id": "ing_milk", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"预料理食材菜品 - 圆面团" },
+    { id:"dish_hotdog_dough", name:"热狗面包", category:"预料理食材", cookingUtensil:"cu_glass_bowl",
+      ingredients:[{"id": "ing_water", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"预料理食材菜品 - 热狗面包" },
+    { id:"dish_puff_pastry", name:"酥皮", category:"预料理食材", cookingUtensil:"cu_glass_bowl",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"预料理食材菜品 - 酥皮" },
+    { id:"dish_ring_bread", name:"圆圈面包", category:"预料理食材", cookingUtensil:"cu_glass_bowl",
+      ingredients:[{"id": "ing_water", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"预料理食材菜品 - 圆圈面包" },
+    { id:"dish_dough", name:"面团", category:"预料理食材", cookingUtensil:"cu_glass_bowl",
+      ingredients:[{"id": "ing_water", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}, {"id": "ing_tea_secret_2", "qty": 1}], description:"预料理食材菜品 - 面团" },
+    { id:"dish_dry_skin", name:"干擀面皮", category:"预料理食材", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_water", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"预料理食材菜品 - 干擀面皮" },
+    { id:"dish_basil_pesto", name:"罗勒青酱", category:"预料理食材", cookingUtensil:"cu_blender",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}], description:"预料理食材菜品 - 罗勒青酱" },
+    { id:"dish_tomato_sauce", name:"意式番茄酱", category:"预料理食材", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_mixed_herb", "qty": 1}], description:"预料理食材菜品 - 意式番茄酱" },
+    { id:"dish_italian_onion_meatball", name:"意式洋葱肉丸", category:"预料理食材", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_onion", "qty": 1}, {"id": "ing_meatball", "qty": 1}, {"id": "dish_tomato_sauce", "qty": 1}], description:"预料理食材菜品 - 意式洋葱肉丸" },
+    { id:"dish_bechamel", name:"欧式白酱", category:"预料理食材", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_milk", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}], description:"预料理食材菜品 - 欧式白酱" },
+    { id:"dish_grilled_meat_patty", name:"烤肉饼", category:"预料理食材", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_meatball", "qty": 1}], description:"预料理食材菜品 - 烤肉饼" },
+    { id:"dish_steamed_potato", name:"清蒸土豆", category:"预料理食材", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_potato", "qty": 1}], description:"预料理食材菜品 - 清蒸土豆" },
+    { id:"dish_onion_meatball", name:"洋葱肉丸", category:"预料理食材", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_onion", "qty": 1}, {"id": "ing_meatball", "qty": 1}], description:"预料理食材菜品 - 洋葱肉丸" },
+    { id:"dish_white_congee", name:"特色白粥", category:"炖煮佳肴", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_water", "qty": 1}, {"id": "ing_rice", "qty": 1}], description:"炖煮佳肴菜品 - 特色白粥" },
+    { id:"dish_pork_congee", name:"翡翠鲜肉粥", category:"炖煮佳肴", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_lettuce", "qty": 1}, {"id": "ing_water", "qty": 1}, {"id": "ing_pork_belly", "qty": 1}, {"id": "ing_rice", "qty": 1}], description:"炖煮佳肴菜品 - 翡翠鲜肉粥" },
+    { id:"dish_chicken_mushroom_congee", name:"香菇滑鸡生滚粥", category:"炖煮佳肴", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_water", "qty": 1}, {"id": "ing_chicken_breast", "qty": 1}, {"id": "ing_rice", "qty": 1}], description:"炖煮佳肴菜品 - 香菇滑鸡生滚粥" },
+    { id:"dish_shrimp_corn_congee", name:"虾仁玉米粥", category:"炖煮佳肴", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_corn", "qty": 1}, {"id": "ing_water", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "ing_rice", "qty": 1}], description:"炖煮佳肴菜品 - 虾仁玉米粥" },
+    { id:"dish_caramel_carrot", name:"焦糖慢烤胡萝卜", category:"烤制大餐", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_carrot", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_caramel", "qty": 1}], description:"烤制大餐菜品 - 焦糖慢烤胡萝卜" },
+    { id:"dish_grilled_chicken_thigh_king", name:"炭烤鸡腿王", category:"烤制大餐", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_chicken_thigh", "qty": 1}], description:"烤制大餐菜品 - 炭烤鸡腿王" },
+    { id:"dish_salted_water_dumpling", name:"咸水角", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_pork_belly", "qty": 1}, {"id": "ing_rice", "qty": 1}, {"id": "ing_tea_secret_4", "qty": 1}], description:"茶楼味道菜品 - 咸水角" },
+    { id:"dish_mushroom_rice_roll", name:"香菇肠粉", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_tea_secret_3", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}], description:"茶楼味道菜品 - 香菇肠粉" },
+    { id:"dish_century_egg", name:"凉拌皮蛋", category:"茶楼味道", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_tea_bag", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_tea_secret_4", "qty": 1}], description:"茶楼味道菜品 - 凉拌皮蛋" },
+    { id:"dish_soup_dumpling", name:"爆汁灌汤小笼包", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_scallion", "qty": 1}, {"id": "ing_pork_belly", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}, {"id": "dish_dry_skin", "qty": 1}], description:"茶楼味道菜品 - 爆汁灌汤小笼包" },
+    { id:"dish_sweet_egg_wine", name:"甜蛋酒", category:"茶楼味道", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_egg", "qty": 1}, {"id": "ing_tea_secret_5", "qty": 1}], description:"茶楼味道菜品 - 甜蛋酒" },
+    { id:"dish_lava_bun", name:"流沙奶黄包", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "dish_dough", "qty": 1}], description:"茶楼味道菜品 - 流沙奶黄包" },
+    { id:"dish_pork_rice_roll", name:"鲜肉肠粉", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_pork_belly", "qty": 1}, {"id": "ing_tea_secret_3", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}], description:"茶楼味道菜品 - 鲜肉肠粉" },
+    { id:"dish_steamed_bun", name:"老面馒头", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "dish_dough", "qty": 1}], description:"茶楼味道菜品 - 老面馒头" },
+    { id:"dish_radish_cake", name:"酥脆萝卜糕", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}, {"id": "ing_tea_secret_5", "qty": 1}, {"id": "ing_a2bad5ce", "qty": 1}], description:"茶楼味道菜品 - 酥脆萝卜糕" },
+    { id:"dish_garlic_steamed_squid", name:"蒜蓉蒸鱿鱼", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_squid", "qty": 1}], description:"茶楼味道菜品 - 蒜蓉蒸鱿鱼" },
+    { id:"dish_shrimp_dumpling", name:"晶莹鲜虾饺", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_shrimp", "qty": 1}, {"id": "dish_dry_skin", "qty": 1}], description:"茶楼味道菜品 - 晶莹鲜虾饺" },
+    { id:"dish_beef_rice_roll", name:"牛肉肠粉", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_steak", "qty": 1}, {"id": "ing_tea_secret_3", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}], description:"茶楼味道菜品 - 牛肉肠粉" },
+    { id:"dish_coconut_milk_custard", name:"椰汁奶白小方", category:"茶楼味道", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_coconut_milk", "qty": 1}, {"id": "ing_tea_secret_1", "qty": 1}], description:"茶楼味道菜品 - 椰汁奶白小方" },
+    { id:"dish_caramel_malay_cake", name:"焦糖马拉糕", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_egg", "qty": 1}, {"id": "ing_caramel", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}, {"id": "ing_tea_secret_1", "qty": 1}], description:"茶楼味道菜品 - 焦糖马拉糕" },
+    { id:"dish_mango_pudding", name:"QQ芒果布丁", category:"茶楼味道", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_mango", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_tea_secret_1", "qty": 1}], description:"茶楼味道菜品 - QQ芒果布丁" },
+    { id:"dish_lotus_leaf_chicken", name:"古法糯米鸡", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_chicken_thigh", "qty": 1}, {"id": "ing_rice", "qty": 1}, {"id": "ing_tea_secret_4", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}], description:"茶楼味道菜品 - 古法糯米鸡" },
+    { id:"dish_honey_char_siu", name:"蜜汁叉烧", category:"茶楼味道", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_pork_belly", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}], description:"茶楼味道菜品 - 蜜汁叉烧" },
+    { id:"dish_three_fresh_dumpling", name:"三鲜虾肉饺子", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_pork_belly", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "dish_dry_skin", "qty": 1}], description:"茶楼味道菜品 - 三鲜虾肉饺子" },
+    { id:"dish_char_siu_bun", name:"蜜汁叉烧包", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "dish_dough", "qty": 1}, {"id": "dish_honey_char_siu", "qty": 1}], description:"茶楼味道菜品 - 蜜汁叉烧包" },
+    { id:"dish_century_egg_congee", name:"皮蛋瘦肉粥", category:"茶楼味道", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_water", "qty": 1}, {"id": "ing_chicken_breast", "qty": 1}, {"id": "ing_rice", "qty": 1}, {"id": "dish_century_egg", "qty": 1}], description:"茶楼味道菜品 - 皮蛋瘦肉粥" },
+    { id:"dish_chaozhou_fruit_dumpling", name:"潮州粉果", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_pork_belly", "qty": 1}, {"id": "ing_peanut", "qty": 1}, {"id": "ing_tea_secret_2", "qty": 1}, {"id": "dish_dry_skin", "qty": 1}], description:"茶楼味道菜品 - 潮州粉果" },
+    { id:"dish_handmade_beef_ball", name:"手打牛肉丸", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_meatball", "qty": 1}, {"id": "ing_tea_secret_8", "qty": 1}], description:"茶楼味道菜品 - 手打牛肉丸" },
+    { id:"dish_red_rice_roll", name:"红米脆皮肠粉", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_shrimp", "qty": 1}, {"id": "ing_tea_secret_2", "qty": 1}, {"id": "ing_tea_secret_3", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}], description:"茶楼味道菜品 - 红米脆皮肠粉" },
+    { id:"dish_char_siu_pan_fried_bun", name:"叉烧生煎包", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}, {"id": "dish_honey_char_siu", "qty": 1}], description:"茶楼味道菜品 - 叉烧生煎包" },
+    { id:"dish_black_bean_chicken_feet", name:"豉汁凤爪", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_whole_chicken", "qty": 1}, {"id": "ing_tea_secret_6", "qty": 1}], description:"茶楼味道菜品 - 豉汁凤爪" },
+    { id:"dish_sausage_roll", name:"腊味香肠卷", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_sausage", "qty": 1}, {"id": "ing_tea_secret_5", "qty": 1}, {"id": "dish_dough", "qty": 1}], description:"茶楼味道菜品 - 腊味香肠卷" },
+    { id:"dish_stir_fry_kailan", name:"清炒芥兰", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}, {"id": "ing_kailan", "qty": 1}], description:"茶楼味道菜品 - 清炒芥兰" },
+    { id:"dish_chaozhou_braised", name:"潮州卤味", category:"茶楼味道", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_pork_belly", "qty": 1}, {"id": "ing_tea_secret_6", "qty": 1}], description:"茶楼味道菜品 - 潮州卤味" },
+    { id:"dish_radish_puff", name:"千层酥萝卜丝包", category:"茶楼味道", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}, {"id": "ing_a2bad5ce", "qty": 1}], description:"茶楼味道菜品 - 千层酥萝卜丝包" },
+    { id:"dish_fried_steamed_bun", name:"黄金炸馒头", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_tea_secret_6", "qty": 1}, {"id": "dish_dough", "qty": 1}], description:"茶楼味道菜品 - 黄金炸馒头" },
+    { id:"dish_char_siu_rice_roll", name:"叉烧肠粉", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tea_secret_3", "qty": 1}, {"id": "ing_fe_light_soy", "qty": 1}, {"id": "dish_honey_char_siu", "qty": 1}], description:"茶楼味道菜品 - 叉烧肠粉" },
+    { id:"dish_black_bean_ribs", name:"豉汁排骨", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_chili", "qty": 1}, {"id": "ing_spare_ribs", "qty": 1}, {"id": "ing_tea_secret_6", "qty": 1}], description:"茶楼味道菜品 - 豉汁排骨" },
+    { id:"dish_crab_roe_siumai", name:"蟹籽鲜虾烧卖", category:"茶楼味道", cookingUtensil:"cu_tea_steamer",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_pork_belly", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "ing_tea_secret_8", "qty": 1}, {"id": "dish_dry_skin", "qty": 1}], description:"茶楼味道菜品 - 蟹籽鲜虾烧卖" },
+    { id:"dish_oyster_omelette", name:"蚵仔煎", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_clam", "qty": 1}, {"id": "ing_tea_secret_7", "qty": 1}], description:"茶楼味道菜品 - 蚵仔煎" },
+    { id:"dish_typhoon_shelter_shrimp", name:"避风塘炒虾", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_shrimp", "qty": 1}, {"id": "ing_tea_secret_8", "qty": 1}], description:"茶楼味道菜品 - 避风塘炒虾" },
+    { id:"dish_shrimp_rice_roll", name:"虾仁肠粉", category:"茶楼味道", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_scallion", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "ing_tea_secret_3", "qty": 1}, {"id": "ing_fe_soy_sauce", "qty": 1}], description:"茶楼味道菜品 - 虾仁肠粉" },
+    { id:"dish_deep_sea_squid_pasta", name:"深海鲜鱿番茄意面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_squid", "qty": 1}, {"id": "ing_handmade_pasta", "qty": 1}], description:"威尼斯风味菜品 - 深海鲜鱿番茄意面" },
+    { id:"dish_broccoli_bow_tie_pasta", name:"西兰花蝴蝶面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_broccoli", "qty": 1}, {"id": "ing_bow_tie_pasta", "qty": 1}, {"id": "ing_basil_bar_recipe_1", "qty": 1}], description:"威尼斯风味菜品 - 西兰花蝴蝶面" },
+    { id:"dish_caprese_salad", name:"卡布里沙拉", category:"威尼斯风味", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_basil_bar_recipe_3", "qty": 1}], description:"威尼斯风味菜品 - 卡布里沙拉" },
+    { id:"dish_basil_chicken_pasta", name:"罗勒酱汁鸡胸面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_chicken_breast", "qty": 1}, {"id": "ing_spiral_pasta", "qty": 1}, {"id": "dish_basil_pesto", "qty": 1}], description:"威尼斯风味菜品 - 罗勒酱汁鸡胸面" },
+    { id:"dish_custard_doughnut_ball", name:"砂糖卡仕达甜甜球", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_cream", "qty": 1}, {"id": "ing_lemon", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 砂糖卡仕达甜甜球" },
+    { id:"dish_red_wine_brisket_pasta", name:"红酒牛腩酱土豆面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_brisket", "qty": 1}, {"id": "ing_red_wine", "qty": 1}, {"id": "ing_italian_dumpling", "qty": 1}], description:"威尼斯风味菜品 - 红酒牛腩酱土豆面" },
+    { id:"dish_tomato_bacon_pasta", name:"番茄培根意面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_chili", "qty": 1}, {"id": "ing_bacon", "qty": 1}, {"id": "ing_wide_noodle", "qty": 1}, {"id": "ing_basil_bar_recipe_6", "qty": 1}, {"id": "dish_tomato_sauce", "qty": 1}], description:"威尼斯风味菜品 - 番茄培根意面" },
+    { id:"dish_truffle_mushroom_risotto", name:"黑松露野菌奶油烩饭", category:"威尼斯风味", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_mushroom", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_white_wine", "qty": 1}, {"id": "ing_rice", "qty": 1}, {"id": "ing_basil_bar_recipe_8", "qty": 1}], description:"威尼斯风味菜品 - 黑松露野菌奶油烩饭" },
+    { id:"dish_brown_butter_ravioli", name:"焦香黄油意式饺子", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_italian_dumpling", "qty": 1}], description:"威尼斯风味菜品 - 焦香黄油意式饺子" },
+    { id:"dish_shiitake_cheese_ravioli", name:"香菇乳酪意式馄饨", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "dish_shiitake_ravioli", "qty": 1}], description:"威尼斯风味菜品 - 香菇乳酪意式馄饨" },
+    { id:"dish_lemon_butter_crab_ravioli", name:"柠檬黄油螃蟹意式馄饨", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_lemon", "qty": 1}, {"id": "dish_crab_ravioli", "qty": 1}], description:"威尼斯风味菜品 - 柠檬黄油螃蟹意式馄饨" },
+    { id:"dish_wine_clam_pasta", name:"酒香蛤蜊拌意面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_clam", "qty": 1}, {"id": "ing_white_wine", "qty": 1}, {"id": "ing_handmade_pasta", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 酒香蛤蜊拌意面" },
+    { id:"dish_grilled_purple_cabbage", name:"生烤紫甘蓝", category:"威尼斯风味", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_purple_cabbage", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 生烤紫甘蓝" },
+    { id:"dish_pesto_macaroni", name:"罗勒酱通心粉", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_macaroni", "qty": 1}, {"id": "dish_basil_pesto", "qty": 1}], description:"威尼斯风味菜品 - 罗勒酱通心粉" },
+    { id:"dish_classic_bolognese", name:"经典番茄肉酱面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_meatball", "qty": 1}, {"id": "ing_wide_noodle", "qty": 1}, {"id": "ing_basil_bar_recipe_4", "qty": 1}], description:"威尼斯风味菜品 - 经典番茄肉酱面" },
+    { id:"dish_aglio_olio", name:"蒜香意面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_handmade_pasta", "qty": 1}, {"id": "ing_basil_bar_recipe_1", "qty": 1}], description:"威尼斯风味菜品 - 蒜香意面" },
+    { id:"dish_lobster_ravioli", name:"浓郁茄汁龙虾烩馄饨", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_white_wine", "qty": 1}, {"id": "dish_lobster_ravioli_dish", "qty": 1}], description:"威尼斯风味菜品 - 浓郁茄汁龙虾烩馄饨" },
+    { id:"dish_cocoa_cream", name:"可可奶霜秋", category:"威尼斯风味", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_cream", "qty": 1}, {"id": "ing_chocolate", "qty": 1}], description:"威尼斯风味菜品 - 可可奶霜秋" },
+    { id:"dish_shrimp_cream_fettuccine", name:"虾皇奶油宽面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "ing_wide_noodle", "qty": 1}, {"id": "ing_basil_bar_recipe_5", "qty": 1}], description:"威尼斯风味菜品 - 虾皇奶油宽面" },
+    { id:"dish_tuna_bow_tie_pasta", name:"油浸金枪鱼蝴蝶面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_tuna", "qty": 1}, {"id": "ing_bow_tie_pasta", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 油浸金枪鱼蝴蝶面" },
+    { id:"dish_berry_panna_cotta", name:"莓果奶冻", category:"威尼斯风味", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_vanilla_extract", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_blueberry", "qty": 1}, {"id": "ing_strawberry", "qty": 1}, {"id": "ing_basil_bar_recipe_1", "qty": 1}], description:"威尼斯风味菜品 - 莓果奶冻" },
+    { id:"dish_tiramisu", name:"提拉米苏", category:"威尼斯风味", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_dark_roast_coffee", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_chocolate", "qty": 1}, {"id": "ing_rum", "qty": 1}, {"id": "ing_basil_bar_recipe_4", "qty": 1}], description:"威尼斯风味菜品 - 提拉米苏" },
+    { id:"dish_signature_seafood_pasta", name:"招牌海鲜烩面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mussel", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "ing_white_wine", "qty": 1}, {"id": "ing_handmade_pasta", "qty": 1}, {"id": "dish_tomato_sauce", "qty": 1}], description:"威尼斯风味菜品 - 招牌海鲜烩面" },
+    { id:"dish_lobster_fettuccine", name:"招牌大龙虾手工宽面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_lobster", "qty": 1}, {"id": "ing_wide_noodle", "qty": 1}, {"id": "ing_basil_bar_recipe_5", "qty": 1}], description:"威尼斯风味菜品 - 招牌大龙虾手工宽面" },
+    { id:"dish_lemon_cheese_pasta", name:"柠檬乳酪芝士面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_lemon", "qty": 1}, {"id": "ing_spiral_pasta", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 柠檬乳酪芝士面" },
+    { id:"dish_pan_fried_carrot", name:"香煎胡萝卜", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_carrot", "qty": 1}, {"id": "ing_garlic", "qty": 1}, {"id": "ing_mixed_herb", "qty": 1}], description:"威尼斯风味菜品 - 香煎胡萝卜" },
+    { id:"dish_garlic_broccoli", name:"蒜香西兰花", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_broccoli", "qty": 1}, {"id": "ing_garlic", "qty": 1}, {"id": "ing_basil_bar_recipe_1", "qty": 1}], description:"威尼斯风味菜品 - 蒜香西兰花" },
+    { id:"dish_palermo_steak", name:"巴勒莫美味牛排", category:"威尼斯风味", cookingUtensil:"cu_grill",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_garlic", "qty": 1}, {"id": "ing_steak", "qty": 1}], description:"威尼斯风味菜品 - 巴勒莫美味牛排" },
+    { id:"dish_salmon_cream_bow_tie", name:"三文鱼奶油蝴蝶面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_butter", "qty": 1}, {"id": "ing_lemon", "qty": 1}, {"id": "ing_salmon", "qty": 1}, {"id": "ing_bow_tie_pasta", "qty": 1}], description:"威尼斯风味菜品 - 三文鱼奶油蝴蝶面" },
+    { id:"dish_cream_crab_ravioli", name:"奶油酱螃蟹意式馄饨", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_cream", "qty": 1}, {"id": "dish_crab_ravioli", "qty": 1}], description:"威尼斯风味菜品 - 奶油酱螃蟹意式馄饨" },
+    { id:"dish_orange_cake", name:"阳光鲜橙柳丁蛋糕", category:"威尼斯风味", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_butter", "qty": 1}, {"id": "ing_orange", "qty": 1}, {"id": "ing_rock_sugar", "qty": 1}, {"id": "ing_wheat_flour", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 阳光鲜橙柳丁蛋糕" },
+    { id:"dish_carbonara", name:"蛋黄培根意面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_bacon", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_handmade_pasta", "qty": 1}, {"id": "ing_basil_bar_recipe_5", "qty": 1}], description:"威尼斯风味菜品 - 蛋黄培根意面" },
+    { id:"dish_arrabbiata", name:"阿拉比亚塔意面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_chili", "qty": 1}, {"id": "ing_garlic", "qty": 1}, {"id": "ing_spiral_pasta", "qty": 1}], description:"威尼斯风味菜品 - 阿拉比亚塔意面" },
+    { id:"dish_meatball_baked_pasta", name:"香浓肉丸焗面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_handmade_pasta", "qty": 1}, {"id": "dish_tomato_sauce", "qty": 1}, {"id": "dish_onion_meatball", "qty": 1}], description:"威尼斯风味菜品 - 香浓肉丸焗面" },
+    { id:"dish_lasagna_bolognese", name:"肉酱千层面", category:"威尼斯风味", cookingUtensil:"cu_oven",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_meatball", "qty": 1}, {"id": "ing_lasagna", "qty": 1}, {"id": "ing_basil_bar_recipe_8", "qty": 1}], description:"威尼斯风味菜品 - 肉酱千层面" },
+    { id:"dish_cream_gelato", name:"奶油Gelato", category:"威尼斯风味", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_vanilla_bean", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_egg", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 奶油Gelato" },
+    { id:"dish_crab_ravioli", name:"蟹肉意式馄饨", category:"威尼斯风味", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_crab", "qty": 1}, {"id": "ing_ravioli", "qty": 1}], description:"威尼斯风味菜品 - 蟹肉意式馄饨" },
+    { id:"dish_shiitake_ravioli", name:"香菇意式馄饨", category:"威尼斯风味", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_shiitake", "qty": 1}, {"id": "ing_ravioli", "qty": 1}, {"id": "ing_basil_bar_recipe_6", "qty": 1}], description:"威尼斯风味菜品 - 香菇意式馄饨" },
+    { id:"dish_lobster_ravioli_dish", name:"龙虾意式馄饨", category:"威尼斯风味", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_lobster", "qty": 1}, {"id": "ing_ravioli", "qty": 1}], description:"威尼斯风味菜品 - 龙虾意式馄饨" },
+    { id:"dish_vodka_penne", name:"伏特加通心粉", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_cream", "qty": 1}, {"id": "ing_vodka", "qty": 1}, {"id": "ing_macaroni", "qty": 1}], description:"威尼斯风味菜品 - 伏特加通心粉" },
+    { id:"dish_wine_lemon_pasta", name:"酒香柠檬意面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_garlic", "qty": 1}, {"id": "ing_lemon", "qty": 1}, {"id": "ing_white_wine", "qty": 1}, {"id": "ing_wide_noodle", "qty": 1}], description:"威尼斯风味菜品 - 酒香柠檬意面" },
+    { id:"dish_potato_salad", name:"意式土豆沙拉", category:"威尼斯风味", cookingUtensil:"cu_prep_table",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_basil_bar_recipe_4", "qty": 1}, {"id": "dish_steamed_potato", "qty": 1}], description:"威尼斯风味菜品 - 意式土豆沙拉" },
+    { id:"dish_pesto_ravioli", name:"罗勒酱意式饺子", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_italian_dumpling", "qty": 1}, {"id": "dish_basil_pesto", "qty": 1}], description:"威尼斯风味菜品 - 罗勒酱意式饺子" },
+    { id:"dish_wine_clam_risotto", name:"酒香蛤蜊烩饭", category:"威尼斯风味", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_clam", "qty": 1}, {"id": "ing_white_wine", "qty": 1}, {"id": "ing_rice", "qty": 1}, {"id": "ing_basil_bar_recipe_7", "qty": 1}], description:"威尼斯风味菜品 - 酒香蛤蜊烩饭" },
+    { id:"dish_lemon_shrimp_spiral", name:"柠檬鲜虾螺旋面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_mixed_herb", "qty": 1}, {"id": "ing_lemon", "qty": 1}, {"id": "ing_shrimp", "qty": 1}, {"id": "ing_spiral_pasta", "qty": 1}, {"id": "ing_basil_bar_recipe_6", "qty": 1}], description:"威尼斯风味菜品 - 柠檬鲜虾螺旋面" },
+    { id:"dish_venice_lobster_fettuccine", name:"威尼斯风味龙虾宽面", category:"威尼斯风味", cookingUtensil:"cu_stove",
+      ingredients:[{"id": "ing_chili", "qty": 1}, {"id": "ing_lobster", "qty": 1}, {"id": "ing_wide_noodle", "qty": 1}, {"id": "ing_basil_bar_recipe_6", "qty": 1}, {"id": "dish_tomato_sauce", "qty": 1}], description:"威尼斯风味菜品 - 威尼斯风味龙虾宽面" },
+    { id:"dish_braised_chicken", name:"红烩鸡块", category:"待定", cookingUtensil:"cu_stew_pot",
+      ingredients:[{"id": "ing_tomato", "qty": 1}, {"id": "ing_chili", "qty": 1}, {"id": "ing_onion", "qty": 1}, {"id": "ing_chicken_breast", "qty": 1}], description:"待定菜品 - 红烩鸡块" }
+  ]
+};
+
+
+// ==================== CATEGORY CONFIG ====================
+const CATEGORIES = {
+  launchers: { name:"发射器", icon:"🚀", badgeClass:"cat-launcher", items:[
+    "发射器总表","蔬菜篮子","冰柜","鲜肉销售","果盆","海钓工具","酒水饮料台","五谷米仓","天青色茶楼","制面机器","冥想花园"
+  ]},
+  ingredients: { name:"食材", icon:"🥬", badgeClass:"cat-ingredient", items:[
+    "食材总表","蔬菜","香料调料","爆米花","香草制品","咖啡","茶水","奶制品","器皿","畜肉","禽肉","水果","糖果",
+    "无壳海鲜","带壳海鲜","发酵饮料","软性饮料","谷物杂粮","茶楼菜谱","特色面食","威尼斯秘制配方"
+  ]},
+  cookingUtensils: { name:"炊具", icon:"🍳", badgeClass:"cat-utensil", items:[
+    "炊具总表","料理台","烧烤架","搅拌机","灶台","烤箱","炖煮锅"
+  ]},
+  dishes: { name:"菜品", icon:"🍽️", badgeClass:"cat-dish", items:[
+    "菜品总表","生食冷盘","奶茶甜点","街边烧烤","鲜榨果汁","炸物小吃","家常菜","海鲜大餐","混合饮品",
+    "烘焙面点","预料理食材","炖煮佳肴","烤制大餐","茶楼味道","威尼斯风味","和风料理","地中海料理",
+    "巴伐利亚风味","墨西哥风情","土耳其料理","新奥尔良风味","泰式风情"
+  ]}
+};
+
+const TYPE_MAP = {
+  launchers: { singular:"发射器", dataKey:"launchers", badgeClass:"badge-launcher" },
+  ingredients: { singular:"食材", dataKey:"ingredients", badgeClass:"badge-ingredient" },
+  cookingUtensils: { singular:"炊具", dataKey:"cookingUtensils", badgeClass:"badge-utensil" },
+  dishes: { singular:"菜品", dataKey:"dishes", badgeClass:"badge-dish" }
+};
+
+// ==================== STATE ====================
+let sidebarHidden = localStorage.getItem("feiWikiSidebarHidden") === "true";
+let currentRoute = { view: "home", type: null, category: null, id: null };
+let expandedSections = {};
+
+// ==================== SIDEBAR TOGGLE ====================
+function toggleSidebar() {
+  sidebarHidden = !sidebarHidden;
+  localStorage.setItem("feiWikiSidebarHidden", sidebarHidden);
+  applySidebarState();
+}
+function applySidebarState() {
+  const layout = document.querySelector(".layout");
+  if (sidebarHidden) {
+    layout.classList.add("sidebar-hidden");
+  } else {
+    layout.classList.remove("sidebar-hidden");
+  }
+}
+
+// ==================== HELPER FUNCTIONS ====================
+function getData(type) { return GAME_DATA[TYPE_MAP[type].dataKey] || []; }
+function getById(id) {
+  for (const type of Object.keys(TYPE_MAP)) {
+    const item = getData(type).find(e => e.id === id);
+    if (item) return { ...item, _type: type };
+  }
+  return null;
+}
+function getTypeById(id) {
+  for (const type of Object.keys(TYPE_MAP)) {
+    if (getData(type).find(e => e.id === id)) return type;
+  }
+  return null;
+}
+function getElementName(id) {
+  const el = getById(id);
+  return el ? el.name : id;
+}
+function getDishesByIngredient(ingredientId) {
+  return getData("dishes").filter(d => d.ingredients.some(i => i.id === ingredientId));
+}
+function getDishesByUtensil(utensilId) {
+  return getData("dishes").filter(d => d.cookingUtensil === utensilId);
+}
+function getDishesUsingDishAsIngredient(dishId) {
+  return getData("dishes").filter(d => d.ingredients.some(i => i.id === dishId));
+}
+function getElementsByCategory(type, category) {
+  if (category.includes("总表")) return getData(type);
+  return getData(type).filter(e => e.category === category);
+}
+function countByCategory(type, category) {
+  return getElementsByCategory(type, category).length;
+}
+
+// ==================== RENDERING ====================
+function renderSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  let html = "";
+  // Home link
+  html += `<div class="nav-section-header" onclick="navigate('home')" style="padding-left:20px;">
+    <span class="nav-icon">🏠</span> 首页
+  </div>`;
+  html += `<div class="nav-section-header" onclick="navigate('dailyMenu')" style="padding-left:20px;">
+    <span class="nav-icon">📅</span> 每日菜谱
+  </div>`;
+  html += `<div class="nav-section-header" onclick="navigate('calculator')" style="padding-left:20px;">
+    <span class="nav-icon">🧮</span> 分值计算器
+  </div>`;
+  html += `<div class="nav-divider"></div>`;
+  // Element type sections
+  for (const [typeKey, config] of Object.entries(CATEGORIES)) {
+    const isExpanded = expandedSections[typeKey] ? "expanded" : "";
+    html += `<div class="nav-section ${isExpanded}" data-type="${typeKey}">
+      <div class="nav-section-header" onclick="toggleSection('${typeKey}')">
+        <span class="nav-icon">${config.icon}</span>
+        <span>${config.name}</span>
+        <span class="nav-arrow">▶</span>
+      </div>
+      <div class="nav-section-items">`;
+    for (const cat of config.items) {
+      const count = countByCategory(typeKey, cat);
+      html += `<div class="nav-item" onclick="navigate('category','${typeKey}','${cat}')">
+        ${cat} <span class="count-badge">${count}</span>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+  sidebar.innerHTML = html;
+}
+
+function toggleSection(typeKey) {
+  expandedSections[typeKey] = !expandedSections[typeKey];
+  renderSidebar();
+}
+
+function updateSidebarActive() {
+  document.querySelectorAll(".nav-section-header").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+  if (currentRoute.view === "home") {
+    const headers = document.querySelectorAll(".nav-section-header");
+    if (headers[0]) headers[0].classList.add("active");
+  } else if (currentRoute.view === "dailyMenu") {
+    const headers = document.querySelectorAll(".nav-section-header");
+    if (headers[1]) headers[1].classList.add("active");
+  } else if (currentRoute.view === "calculator") {
+    const headers = document.querySelectorAll(".nav-section-header");
+    if (headers[2]) headers[2].classList.add("active");
+  } else if (currentRoute.view === "category" || currentRoute.view === "detail") {
+    const type = currentRoute.view === "detail" ? currentRoute.type : currentRoute.type;
+    if (!expandedSections[type]) {
+      expandedSections[type] = true;
+      renderSidebar();
+    }
+    // Find and highlight the active nav item
+    const cat = currentRoute.view === "detail" ? null : currentRoute.category;
+    document.querySelectorAll(".nav-item").forEach(el => {
+      const text = el.textContent.trim().split(" ")[0];
+      if (cat && text === cat) el.classList.add("active");
+    });
+  }
+}
+
+function navigate(view, type, category, id) {
+  currentRoute = { view, type, category, id };
+  renderContent();
+  updateSidebarActive();
+  window.scrollTo(0, 0);
+}
+
+function renderContent() {
+  const main = document.getElementById("mainContent");
+  const r = currentRoute;
+  if (r.view === "home") {
+    main.innerHTML = renderHome();
+  } else if (r.view === "dailyMenu") {
+    main.innerHTML = renderDailyMenu();
+    initDailyMenu();
+  } else if (r.view === "calculator") {
+    main.innerHTML = renderCalculator();
+    initCalculator();
+  } else if (r.view === "category") {
+    main.innerHTML = renderCategoryView(r.type, r.category);
+  } else if (r.view === "detail") {
+    main.innerHTML = renderDetail(r.type, r.id);
+  }
+  main.className = "main-content fade-in";
+}
+
+function renderHome() {
+  let html = `<div class="breadcrumb"><span>首页</span></div>`;
+  // Quick links first
+  html += `<div class="section-heading">⚡ 快速入口</div>`;
+  html += `<div class="card-grid">`;
+  html += `<div class="element-card" onclick="navigate('dailyMenu')">
+    <div class="card-type-badge" style="background:var(--color-secondary)">每日</div>
+    <div class="card-title">📅 每日菜谱</div>
+    <div class="card-desc">管理每日食谱，记录经营天数的菜品制作进度</div>
+  </div>`;
+  html += `<div class="element-card" onclick="navigate('calculator')">
+    <div class="card-type-badge" style="background:#7c3aed">工具</div>
+    <div class="card-title">🧮 分值计算器</div>
+    <div class="card-desc">根据目标分值和菜品分值组合，计算最优菜品搭配方案</div>
+  </div>`;
+  const recentDishes = getData("dishes").slice(0, 5);
+  for (const d of recentDishes) {
+    html += `<div class="element-card" onclick="navigate('detail','dishes',null,'${d.id}')">
+      <div class="card-type-badge ${TYPE_MAP.dishes.badgeClass}">菜品</div>
+      <div class="card-title">${d.name}</div>
+      <div class="card-category ${CATEGORIES.dishes.badgeClass}">${d.category}</div>
+      <div class="card-desc">${d.description || ""}</div>
+    </div>`;
+  }
+  html += `</div>`;
+  // Data overview
+  html += `<div class="section-heading" style="margin-top:28px;">📊 数据概览</div>`;
+  html += `<div class="dashboard-stats">`;
+  for (const [typeKey, config] of Object.entries(CATEGORIES)) {
+    const count = getData(typeKey).length;
+    html += `<div class="stat-card" onclick="navigate('category','${typeKey}','${config.name}总表')">
+      <div class="stat-icon">${config.icon}</div>
+      <div class="stat-number">${count}</div>
+      <div class="stat-label">${config.name}</div>
+    </div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function renderCategoryView(type, category) {
+  const config = CATEGORIES[type];
+  const items = getElementsByCategory(type, category);
+  let html = `<div class="breadcrumb">
+    <a onclick="navigate('home')">首页</a>
+    <span class="separator">/</span>
+    <a onclick="navigate('category','${type}','${config.name}总表')">${config.name}</a>
+    <span class="separator">/</span>
+    <span>${category}</span>
+  </div>`;
+  html += `<div class="section-heading">${config.icon} ${category} <span style="font-size:14px;color:var(--color-text-light);font-weight:400">(${items.length} 项)</span></div>`;
+  if (items.length === 0) {
+    html += `<div class="empty-state"><div class="empty-icon">📭</div><p>暂无数据，请在 GAME_DATA 中添加${config.name}数据</p></div>`;
+    return html;
+  }
+  html += `<div class="card-grid">`;
+  for (const item of items) {
+    html += renderElementCard(type, item);
+  }
+  html += `</div>`;
+  return html;
+}
+
+function renderElementCard(type, item) {
+  const config = CATEGORIES[type];
+  const typeInfo = TYPE_MAP[type];
+  let desc = item.description || "";
+  if (type === "dishes" && item.ingredients) {
+    desc = `需要: ${item.ingredients.map(i => getElementName(i.id)).join("、")}`;
+  } else if (type === "launchers" && item.produces) {
+    desc = `产出: ${item.produces.map(id => getElementName(id)).join("、")}`;
+  } else if (type === "cookingUtensils" && item.produces) {
+    desc = `可制作: ${item.produces.map(id => getElementName(id)).join("、")}`;
+  } else if (type === "ingredients" && item.source) {
+    desc = `来源: ${getElementName(item.source.id)}`;
+  }
+  return `<div class="element-card" onclick="navigate('detail','${type}',null,'${item.id}')">
+    <div class="card-type-badge ${typeInfo.badgeClass}">${config.name}</div>
+    <div class="card-title">${item.name}</div>
+    <div class="card-category ${config.badgeClass}">${item.category}</div>
+    <div class="card-desc">${desc}</div>
+  </div>`;
+}
+
+function renderDetail(type, id) {
+  const item = getById(id);
+  if (!item) return `<div class="empty-state"><div class="empty-icon">❓</div><p>未找到元素: ${id}</p></div>`;
+  const config = CATEGORIES[type];
+  const typeInfo = TYPE_MAP[type];
+
+  let html = `<button class="back-btn" onclick="history.back?goBack():navigate('category','${type}','${config.name}总表')">← 返回</button>`;
+  html += `<div class="breadcrumb">
+    <a onclick="navigate('home')">首页</a>
+    <span class="separator">/</span>
+    <a onclick="navigate('category','${type}','${config.name}总表')">${config.name}</a>
+    <span class="separator">/</span>
+    <span>${item.name}</span>
+  </div>`;
+
+  // Header
+  html += `<div class="detail-header">
+    <div class="detail-title">${config.icon} ${item.name}</div>
+    <div class="detail-category ${config.badgeClass}">${item.category}</div>
+    ${item.description ? `<div class="detail-desc">${item.description}</div>` : ""}
+  </div>`;
+
+  // Type-specific sections
+  if (type === "launchers") {
+    html += renderLauncherSections(item);
+  } else if (type === "ingredients") {
+    html += renderIngredientSections(item);
+  } else if (type === "cookingUtensils") {
+    html += renderUtensilSections(item);
+  } else if (type === "dishes") {
+    html += renderDishSections(item);
+  }
+
+  return html;
+}
+
+function renderRelationItem(id, qty, label) {
+  const el = getById(id);
+  if (!el) return `<div class="relation-item"><span class="rel-name">${id}</span><span class="rel-qty">未找到</span></div>`;
+  const type = el._type;
+  const config = CATEGORIES[type];
+  const typeInfo = TYPE_MAP[type];
+  return `<div class="relation-item" onclick="navigate('detail','${type}',null,'${id}')">
+    <span class="rel-type-badge ${typeInfo.badgeClass}">${config.name}</span>
+    <span class="rel-name">${el.name}</span>
+    ${el.category ? `<span style="font-size:12px;color:var(--color-text-light)">[${el.category}]</span>` : ""}
+    ${qty ? `<span class="rel-qty">x${qty}</span>` : ""}
+    ${label ? `<span class="rel-qty">${label}</span>` : ""}
+    <span class="rel-arrow">→</span>
+  </div>`;
+}
+
+function renderRelationSection(title, icon, items, emptyMsg) {
+  if (!items || items.length === 0) return "";
+  let html = `<div class="detail-section">
+    <div class="detail-section-title">${icon} ${title}</div>`;
+  for (const item of items) {
+    html += renderRelationItem(item.id, item.qty, item.label);
+  }
+  html += `</div>`;
+  return html;
+}
+
+function renderLauncherSections(item) {
+  let html = "";
+  // Produces
+  const produces = (item.produces || []).map(id => ({ id }));
+  html += renderRelationSection("产出食材", "📦", produces, "暂无产出");
+  return html;
+}
+
+function renderIngredientSections(item) {
+  let html = "";
+  // Source
+  if (item.source) {
+    const sourceItems = [{ id: item.source.id, label: "来源" }];
+    html += renderRelationSection("来源", "🔗", sourceItems, "");
+  }
+  // Used in dishes (reverse query)
+  const usedIn = getDishesByIngredient(item.id);
+  const usedInItems = usedIn.map(d => ({ id: d.id }));
+  html += renderRelationSection("可用于制作以下菜品（反向查询）", "🔍", usedInItems, "暂无相关菜品");
+  return html;
+}
+
+function renderUtensilSections(item) {
+  let html = "";
+  // Produces
+  const produces = (item.produces || []).map(id => ({ id }));
+  html += renderRelationSection("可制作菜品", "🍳", produces, "暂无可制作菜品");
+  // Also show dishes that use this utensil (from dishes data)
+  const dishesUsingUtensil = getDishesByUtensil(item.id);
+  const utensilDishes = dishesUsingUtensil.map(d => ({ id: d.id }));
+  if (utensilDishes.length > 0 && produces.length === 0) {
+    html += renderRelationSection("可制作菜品（反向查询）", "🔍", utensilDishes, "");
+  }
+  return html;
+}
+
+function renderDishSections(item) {
+  let html = "";
+  // Cooking utensil
+  if (item.cookingUtensil) {
+    const utensilItems = [{ id: item.cookingUtensil, label: "使用炊具" }];
+    html += renderRelationSection("所需炊具", "🍳", utensilItems, "");
+  }
+  // Required ingredients
+  if (item.ingredients && item.ingredients.length > 0) {
+    const ingItems = item.ingredients.map(i => ({ id: i.id, qty: i.qty }));
+    html += renderRelationSection("所需食材/菜品", "🥬", ingItems, "");
+  }
+  // Reverse: used as ingredient in other dishes
+  const usedIn = getDishesUsingDishAsIngredient(item.id);
+  if (usedIn.length > 0) {
+    const usedInItems = usedIn.map(d => ({ id: d.id, label: "作为食材" }));
+    html += renderRelationSection("作为食材用于以下菜品（反向查询）", "🔍", usedInItems, "");
+  }
+  return html;
+}
+
+// ==================== SEARCH ====================
+function performSearch(query) {
+  const results = document.getElementById("searchResults");
+  if (!query || query.trim().length === 0) {
+    results.classList.remove("active");
+    return;
+  }
+  const q = query.trim().toLowerCase();
+  const matches = [];
+  for (const [typeKey, config] of Object.entries(CATEGORIES)) {
+    for (const item of getData(typeKey)) {
+      if (item.name.toLowerCase().includes(q) || (item.category && item.category.toLowerCase().includes(q))) {
+        matches.push({ type: typeKey, item, config });
+      }
+    }
+  }
+  if (matches.length === 0) {
+    results.innerHTML = `<div class="search-result-item" style="color:var(--color-text-light)">未找到匹配结果</div>`;
+  } else {
+    let html = "";
+    for (const m of matches.slice(0, 20)) {
+      const typeInfo = TYPE_MAP[m.type];
+      html += `<div class="search-result-item" onclick="selectSearchResult('${m.type}','${m.item.id}')">
+        <span class="search-result-type ${typeInfo.badgeClass}">${m.config.name}</span>
+        <span style="font-weight:500">${m.item.name}</span>
+        <span style="font-size:12px;color:var(--color-text-light)">${m.item.category || ""}</span>
+      </div>`;
+    }
+    if (matches.length > 20) {
+      html += `<div class="search-result-item" style="color:var(--color-text-light);font-size:12px">还有 ${matches.length - 20} 个结果，请细化搜索...</div>`;
+    }
+    results.innerHTML = html;
+  }
+  results.classList.add("active");
+}
+
+function selectSearchResult(type, id) {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchResults").classList.remove("active");
+  navigate("detail", type, null, id);
+}
+
+// ==================== DAILY MENU ====================
+let currentDay = 128;
+let pickerTabs = {0:"all",1:"all",2:"all"};
+
+function renderDailyMenu() {
+  const labels = ["今天","明天","后天"];
+  return `<div class="breadcrumb">
+    <a onclick="navigate('home')">首页</a>
+    <span class="separator">/</span>
+    <span>每日菜谱</span>
+  </div>
+  <div class="daily-menu-container">
+    <div class="section-heading">📅 每日菜谱</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="export-btn" onclick="exportDailyMenus()" title="导出所有菜谱数据为JSON文件">📥 导出数据</button>
+      <button class="paste-btn" onclick="copyExportData()" title="复制菜谱JSON到剪贴板">📋 复制数据</button>
+      <button class="import-btn" onclick="document.getElementById('importFileInput').click()" title="从JSON文件导入菜谱数据">📤 导入数据</button>
+      <button class="paste-btn" onclick="showPasteModal()" title="粘贴JSON文本导入菜谱数据">📋 粘贴导入</button>
+      <button class="clear-btn" onclick="clearDailyData()" title="清除所有菜谱数据（请先导出备份）">🗑️ 清除数据</button>
+      <button class="md-import-btn" onclick="document.getElementById('mdImportFileInput').click()" title="从MD文件导入菜品并自动生成食材">📄 导入菜品MD</button>
+      <button class="md-import-btn" onclick="exportUpdatedHTML()" title="下载完整HTML文件，文件名格式：fe+菜品数量.html（如fe236.html）" style="border-color:#27ae60;color:#27ae60;">💾 导出更新HTML</button>
+      <button class="md-clear-btn" onclick="clearMDImportData()" title="清除所有通过MD导入的菜品和食材数据">🗑️ 清除导入菜品</button>
+      <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importDailyMenus(this.files[0])">
+      <input type="file" id="mdImportFileInput" accept=".md,.txt" style="display:none" onchange="handleMDImport(this.files[0])">
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <button class="day-nav-btn" onclick="changeDay(-3)">◀</button>
+      <span style="font-weight:700;font-size:16px;">第 ${currentDay} ~ ${currentDay+2} 天</span>
+      <button class="day-nav-btn" onclick="changeDay(3)">▶</button>
+    </div>
+    <div class="day-grid">
+      <div class="day-column" id="dayCol0">
+        <div class="day-column-header">📅 ${labels[0]} <span class="day-label today">Day ${currentDay}</span></div>
+        <div class="progress-bar" style="margin-bottom:8px;"><div class="progress-fill" id="dayProgress0" style="width:0%"></div><span class="progress-text" id="dayProgressText0">0/0</span></div>
+        <div class="dish-list" id="dayDishList0"></div>
+        <div class="add-dish-area">
+          <button class="add-dish-btn" onclick="toggleDayPicker(0)">+ 添加菜品/食材</button>
+          <div class="dish-picker" id="dayPicker0">
+            <input type="text" class="dish-picker-search" placeholder="搜索菜品或食材..." oninput="filterDayPicker(0)">
+            <div style="display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--color-border);">
+              <button class="picker-tab active" onclick="setPickerTab(0,'all')" id="pickerTab0_all">全部</button>
+              <button class="picker-tab" onclick="setPickerTab(0,'dishes')" id="pickerTab0_dishes">菜品</button>
+              <button class="picker-tab" onclick="setPickerTab(0,'ingredients')" id="pickerTab0_ingredients">食材</button>
+            </div>
+            <div id="dayPickerList0"></div>
+          </div>
+        </div>
+        <div class="notes-area"><textarea id="dayNotes0" placeholder="备注..." onchange="saveDayNotes(0)"></textarea></div>
+        <button class="save-btn" onclick="saveAndShowIngredients(0)" style="margin-top:4px;">💾 保存</button>
+        <div id="dayIngredientList0"></div>
+      </div>
+      <div class="day-column" id="dayCol1">
+        <div class="day-column-header">📅 ${labels[1]} <span class="day-label" style="background:#9e9e9e;">Day ${currentDay+1}</span></div>
+        <div class="progress-bar" style="margin-bottom:8px;"><div class="progress-fill" id="dayProgress1" style="width:0%"></div><span class="progress-text" id="dayProgressText1">0/0</span></div>
+        <div class="dish-list" id="dayDishList1"></div>
+        <div class="add-dish-area">
+          <button class="add-dish-btn" onclick="toggleDayPicker(1)">+ 添加菜品/食材</button>
+          <div class="dish-picker" id="dayPicker1">
+            <input type="text" class="dish-picker-search" placeholder="搜索菜品或食材..." oninput="filterDayPicker(1)">
+            <div style="display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--color-border);">
+              <button class="picker-tab active" onclick="setPickerTab(1,'all')" id="pickerTab1_all">全部</button>
+              <button class="picker-tab" onclick="setPickerTab(1,'dishes')" id="pickerTab1_dishes">菜品</button>
+              <button class="picker-tab" onclick="setPickerTab(1,'ingredients')" id="pickerTab1_ingredients">食材</button>
+            </div>
+            <div id="dayPickerList1"></div>
+          </div>
+        </div>
+        <div class="notes-area"><textarea id="dayNotes1" placeholder="备注..." onchange="saveDayNotes(1)"></textarea></div>
+        <button class="save-btn" onclick="saveAndShowIngredients(1)" style="margin-top:4px;">💾 保存</button>
+        <div id="dayIngredientList1"></div>
+      </div>
+      <div class="day-column" id="dayCol2">
+        <div class="day-column-header">📅 ${labels[2]} <span class="day-label" style="background:#9e9e9e;">Day ${currentDay+2}</span></div>
+        <div class="progress-bar" style="margin-bottom:8px;"><div class="progress-fill" id="dayProgress2" style="width:0%"></div><span class="progress-text" id="dayProgressText2">0/0</span></div>
+        <div class="dish-list" id="dayDishList2"></div>
+        <div class="add-dish-area">
+          <button class="add-dish-btn" onclick="toggleDayPicker(2)">+ 添加菜品/食材</button>
+          <div class="dish-picker" id="dayPicker2">
+            <input type="text" class="dish-picker-search" placeholder="搜索菜品或食材..." oninput="filterDayPicker(2)">
+            <div style="display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--color-border);">
+              <button class="picker-tab active" onclick="setPickerTab(2,'all')" id="pickerTab2_all">全部</button>
+              <button class="picker-tab" onclick="setPickerTab(2,'dishes')" id="pickerTab2_dishes">菜品</button>
+              <button class="picker-tab" onclick="setPickerTab(2,'ingredients')" id="pickerTab2_ingredients">食材</button>
+            </div>
+            <div id="dayPickerList2"></div>
+          </div>
+        </div>
+        <div class="notes-area"><textarea id="dayNotes2" placeholder="备注..." onchange="saveDayNotes(2)"></textarea></div>
+        <button class="save-btn" onclick="saveAndShowIngredients(2)" style="margin-top:4px;">💾 保存</button>
+        <div id="dayIngredientList2"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function initDailyMenu() {
+  for (let i = 0; i < 3; i++) { loadDayColumn(i); }
+}
+
+function getDayNum(colIndex) { return currentDay + colIndex; }
+
+function changeDay(delta) {
+  currentDay = Math.max(1, currentDay + delta);
+  navigate("dailyMenu");
+}
+
+function loadDayColumn(colIndex) {
+  const day = getDayNum(colIndex);
+  const data = getDailyMenuData(day);
+  renderDayDishes(colIndex, data.dishes, data.completed);
+  const notesEl = document.getElementById("dayNotes" + colIndex);
+  if (notesEl) notesEl.value = data.notes || "";
+  updateDayProgress(colIndex, data.dishes, data.completed);
+  renderIngredientChecklist(colIndex);
+}
+
+function loadAllDays() {
+  for (let i = 0; i < 3; i++) { loadDayColumn(i); }
+}
+
+function renderDayDishes(colIndex, dishIds, completedArr) {
+  var container = document.getElementById("dayDishList" + colIndex);
+  if (!dishIds || dishIds.length === 0) {
+    container.innerHTML = '<div class="empty-hint">🍽️ 暂无菜品/食材</div>';
+    return;
+  }
+  var html = "";
+  for (var i = 0; i < dishIds.length; i++) {
+    var item = getById(dishIds[i]);
+    if (!item) continue;
+    var isCompleted = completedArr[i] || false;
+    var isIngredient = item._type === "ingredients";
+    var badgeClass = isIngredient ? "cat-ingredient" : "cat-dish";
+    var typeLabel = isIngredient ? "食材" : "菜品";
+    var clickAction = isIngredient
+      ? "" // ingredients don't have detail pages, or navigate to ingredient detail
+      : "onclick=\"navigate('detail','dishes',null,'" + item.id + "')\"";
+    html += '<div class="daily-dish-item ' + (isCompleted ? "completed" : "") + '">';
+    html += '<div class="complete-toggle ' + (isCompleted ? "checked" : "") + '" onclick="toggleComplete(' + colIndex + ',' + i + ')"></div>';
+    html += '<span class="dish-name" ' + clickAction + ' style="' + (isIngredient ? "cursor:default;" : "") + '">' + item.name + '</span>';
+    html += '<span class="dish-category ' + badgeClass + '">' + item.category + '</span>';
+    html += '<span style="font-size:11px;color:var(--color-text-light);margin-left:-4px;">' + typeLabel + '</span>';
+    html += '<button class="remove-btn" onclick="removeDish(' + colIndex + ',' + i + ')">&times;</button>';
+    html += '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function updateDayProgress(colIndex, dishes, completed) {
+  const total = dishes.length;
+  const done = (completed || []).filter(function(c) { return c; }).length;
+  const pct = total > 0 ? (done / total * 100) : 0;
+  var fill = document.getElementById("dayProgress" + colIndex);
+  var text = document.getElementById("dayProgressText" + colIndex);
+  if (fill) fill.style.width = pct + "%";
+  if (text) text.textContent = done + " / " + total;
+}
+
+function addDish(colIndex, dishId) {
+  var day = getDayNum(colIndex);
+  var data = getDailyMenuData(day);
+  data.dishes.push(dishId);
+  data.completed.push(false);
+  saveDailyData(day, data);
+  loadDayColumn(colIndex);
+}
+
+function removeDish(colIndex, index) {
+  var day = getDayNum(colIndex);
+  var data = getDailyMenuData(day);
+  data.dishes.splice(index, 1);
+  data.completed.splice(index, 1);
+  saveDailyData(day, data);
+  loadDayColumn(colIndex);
+}
+
+function toggleComplete(colIndex, index) {
+  var day = getDayNum(colIndex);
+  var data = getDailyMenuData(day);
+  data.completed[index] = !data.completed[index];
+  saveDailyData(day, data);
+  loadDayColumn(colIndex);
+}
+
+function toggleDayPicker(colIndex) {
+  var picker = document.getElementById("dayPicker" + colIndex);
+  picker.classList.toggle("active");
+  if (picker.classList.contains("active")) {
+    pickerTabs[colIndex] = "all";
+    updatePickerTabUI(colIndex);
+    renderDayPickerList(colIndex, "");
+  }
+}
+
+function setPickerTab(colIndex, tab) {
+  pickerTabs[colIndex] = tab;
+  updatePickerTabUI(colIndex);
+  // Also reset search
+  var searchEl = document.getElementById("dayPicker" + colIndex).querySelector(".dish-picker-search");
+  if (searchEl) searchEl.value = "";
+  renderDayPickerList(colIndex, "");
+}
+
+function updatePickerTabUI(colIndex) {
+  var tab = pickerTabs[colIndex];
+  ["all","dishes","ingredients"].forEach(function(t) {
+    var btn = document.getElementById("pickerTab" + colIndex + "_" + t);
+    if (btn) btn.classList.toggle("active", t === tab);
+  });
+}
+
+function filterDayPicker(colIndex) {
+  var q = document.getElementById("dayPicker" + colIndex).querySelector(".dish-picker-search").value;
+  renderDayPickerList(colIndex, q);
+}
+
+function renderDayPickerList(colIndex, filter) {
+  var list = document.getElementById("dayPickerList" + colIndex);
+  var tab = pickerTabs[colIndex] || "all";
+  var day = getDayNum(colIndex);
+  var data = getDailyMenuData(day);
+  var usedIds = data.dishes;
+
+  var items = [];
+  // Add dishes
+  if (tab === "all" || tab === "dishes") {
+    var allDishes = getData("dishes");
+    for (var i = 0; i < allDishes.length; i++) {
+      var d = allDishes[i];
+      if (usedIds.includes(d.id)) continue;
+      if (filter && !d.name.toLowerCase().includes(filter.toLowerCase())) continue;
+      items.push({ id: d.id, name: d.name, category: d.category, _type: "dishes", badgeClass: "cat-dish", typeLabel: "菜品" });
+    }
+  }
+  // Add ingredients
+  if (tab === "all" || tab === "ingredients") {
+    var allIngredients = getData("ingredients");
+    for (var j = 0; j < allIngredients.length; j++) {
+      var ing = allIngredients[j];
+      if (usedIds.includes(ing.id)) continue;
+      if (filter && !ing.name.toLowerCase().includes(filter.toLowerCase())) continue;
+      items.push({ id: ing.id, name: ing.name, category: ing.category, _type: "ingredients", badgeClass: "cat-ingredient", typeLabel: "食材" });
+    }
+  }
+
+  if (items.length === 0) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--color-text-light)">无可用项目</div>';
+    return;
+  }
+
+  // Sort: dishes first, then ingredients
+  items.sort(function(a, b) {
+    if (a._type !== b._type) return a._type === "dishes" ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+
+  var html = "";
+  for (var k = 0; k < items.length; k++) {
+    var it = items[k];
+    html += '<div class="dish-picker-item" onclick="addDish(' + colIndex + ',\'' + it.id + '\')"><span style="font-weight:500">' + it.name + '</span><span class="' + it.badgeClass + '" style="font-size:11px;padding:1px 6px;border-radius:4px;color:#fff;">' + it.typeLabel + '</span><span style="font-size:12px;color:var(--color-text-light)">' + it.category + '</span></div>';
+  }
+  list.innerHTML = html;
+}
+
+function saveDayNotes(colIndex) {
+  var day = getDayNum(colIndex);
+  var data = getDailyMenuData(day);
+  var notesEl = document.getElementById("dayNotes" + colIndex);
+  data.notes = notesEl ? notesEl.value : "";
+  saveDailyData(day, data);
+}
+
+function saveAndShowIngredients(colIndex) {
+  saveDayNotes(colIndex);
+  // Flash save button
+  var btn = document.querySelectorAll(".day-column")[colIndex].querySelector(".save-btn");
+  if (btn) {
+    var orig = btn.textContent;
+    btn.textContent = "✅ 已保存";
+    btn.style.background = "var(--color-success)";
+    setTimeout(function() { btn.textContent = orig; btn.style.background = ""; }, 1200);
+  }
+  renderIngredientChecklist(colIndex);
+}
+
+function collectIngredients(dishIds, completedArr) {
+  var merged = {};
+  var visited = {};
+  function resolve(id, qty, depth) {
+    if (depth > 8) return;
+    var item = getById(id);
+    if (!item) return;
+    // If it's a dish (has ingredients array), recursively expand its ingredients
+    if (item.ingredients && item.ingredients.length > 0 && !visited[id + "_" + depth]) {
+      for (var i = 0; i < item.ingredients.length; i++) {
+        var ing = item.ingredients[i];
+        resolve(ing.id, (ing.qty || 1) * qty, depth + 1);
+      }
+      return;
+    }
+    // Base ingredient — merge by name
+    var name = item.name || id;
+    if (merged[name]) {
+      merged[name].qty += qty;
+    } else {
+      merged[name] = {
+        name: name,
+        qty: qty,
+        category: item.category || "",
+        id: id
+      };
+    }
+  }
+  for (var i = 0; i < dishIds.length; i++) {
+    // Skip completed items
+    if (completedArr && completedArr[i]) continue;
+    var item = getById(dishIds[i]);
+    if (!item) continue;
+    if (item.ingredients && item.ingredients.length > 0) {
+      // Dish: expand its sub-ingredients
+      for (var j = 0; j < item.ingredients.length; j++) {
+        var ing = item.ingredients[j];
+        resolve(ing.id, ing.qty || 1, 0);
+      }
+    } else {
+      // Raw ingredient: count it directly
+      resolve(dishIds[i], 1, 0);
+    }
+  }
+  return merged;
+}
+
+function renderIngredientChecklist(colIndex) {
+  var day = getDayNum(colIndex);
+  var data = getDailyMenuData(day);
+  var container = document.getElementById("dayIngredientList" + colIndex);
+  if (!container) return;
+
+  if (!data.dishes || data.dishes.length === 0) {
+    container.innerHTML = "";
+    return;
+  }
+
+  var merged = collectIngredients(data.dishes, data.completed);
+  var items = Object.values(merged);
+  // Sort: by category, then by qty desc
+  items.sort(function(a, b) {
+    if (a.category !== b.category) return a.category.localeCompare(b.category);
+    return b.qty - a.qty;
+  });
+
+  var totalQty = 0;
+  var html = '<div class="ingredient-checklist">';
+  html += '<div class="ingredient-checklist-header"><span>🧾 食材清单 (' + items.length + '种)</span>';
+  html += '<span class="copy-link" onclick="copyIngredientList(' + colIndex + ')">📋 复制</span></div>';
+  html += '<div class="ingredient-checklist-body">';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    totalQty += it.qty;
+    html += '<div class="ingredient-checklist-item">';
+    html += '<span style="font-weight:500">' + it.name + '</span>';
+    if (it.category) html += '<span class="cat-badge">' + it.category + '</span>';
+    html += '<span class="qty">×' + it.qty + '</span>';
+    html += '</div>';
+  }
+  html += '</div>';
+  html += '<div class="ingredient-checklist-header" style="font-size:12px;">合计 ' + items.length + ' 种 / ' + totalQty + ' 份</div>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function copyIngredientList(colIndex) {
+  var day = getDayNum(colIndex);
+  var data = getDailyMenuData(day);
+  if (!data.dishes || data.dishes.length === 0) { showToast("无菜品数据"); return; }
+  var merged = collectIngredients(data.dishes, data.completed);
+  var items = Object.values(merged);
+  items.sort(function(a, b) {
+    if (a.category !== b.category) return a.category.localeCompare(b.category);
+    return b.qty - a.qty;
+  });
+  var text = "第" + day + "天 食材清单\n";
+  text += "================\n";
+  for (var i = 0; i < items.length; i++) {
+    text += items[i].name + " ×" + items[i].qty + "\n";
+  }
+  text += "================\n";
+  text += "合计 " + items.length + " 种";
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast("✅ 食材清单已复制");
+    }).catch(function() {
+      // Fallback
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      showToast("✅ 食材清单已复制");
+    });
+  } else {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showToast("✅ 食材清单已复制");
+  }
+}
+
+function saveDailyData(day, data) {
+  localStorage.setItem("fei_e_daily_menu_" + day, JSON.stringify(data));
+}
+
+function getDailyMenuData(day) {
+  var raw = localStorage.getItem("fei_e_daily_menu_" + day);
+  if (raw) {
+    try { return JSON.parse(raw); } catch(e) {}
+  }
+  return { dishes: [], completed: [], notes: "" };
+}
+
+function exportDailyMenus() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith("fei_e_daily_menu_")) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `fei-e-meishi-menus-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("✅ 菜谱数据已导出");
+}
+
+function clearDailyData() {
+  if (!confirm("⚠️ 确定要清除所有每日菜谱数据吗？\n\n此操作不可撤销，建议先导出备份！")) return;
+  if (!confirm("再次确认：清除所有菜谱数据？")) return;
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.startsWith("fei_e_daily_menu_")) {
+      keys.push(key);
+    }
+  }
+  for (var j = 0; j < keys.length; j++) {
+    localStorage.removeItem(keys[j]);
+  }
+  // Also clear MD-imported extension data
+  localStorage.removeItem("fei_e_game_data_ext");
+  loadAllDays();
+  showToast("🗑️ 已清除 " + keys.length + " 天菜谱数据");
+  location.reload();
+}
+
+function importDailyMenus(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      let count = 0;
+      for (const [key, value] of Object.entries(data)) {
+        if (key.startsWith("fei_e_daily_menu_")) {
+          localStorage.setItem(key, value);
+          count++;
+        }
+      }
+      showToast(`✅ 已导入 ${count} 天菜谱数据`);
+      navigate("dailyMenu");
+    } catch (err) {
+      showToast("❌ 文件格式错误，请选择正确的导出文件");
+    }
+  };
+  reader.readAsText(file);
+  // Reset file input so same file can be imported again
+  document.getElementById("importFileInput").value = "";
+}
+
+function copyExportData() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith("fei_e_daily_menu_")) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  const json = JSON.stringify(data, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(json).then(function() {
+      showToast("✅ JSON 已复制到剪贴板，可直接粘贴到微信/备忘录");
+    }).catch(function() {
+      showToast("❌ 复制失败，请用「导出数据」下载文件");
+    });
+  } else {
+    // Fallback for older browsers / non-HTTPS
+    var ta = document.createElement("textarea");
+    ta.value = json;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); showToast("✅ JSON 已复制到剪贴板"); }
+    catch(e) { showToast("❌ 复制失败，请用「导出数据」下载文件"); }
+    document.body.removeChild(ta);
+  }
+}
+
+function showPasteModal() {
+  document.getElementById("pasteModal").classList.add("show");
+  document.getElementById("pasteTextarea").focus();
+}
+
+function hidePasteModal() {
+  document.getElementById("pasteModal").classList.remove("show");
+  document.getElementById("pasteTextarea").value = "";
+}
+
+function doPasteImport() {
+  var text = document.getElementById("pasteTextarea").value.trim();
+  if (!text) { showToast("❌ 请先粘贴 JSON 内容"); return; }
+  try {
+    var data = JSON.parse(text);
+    var count = 0;
+    for (var key in data) {
+      if (data.hasOwnProperty(key) && key.startsWith("fei_e_daily_menu_")) {
+        localStorage.setItem(key, data[key]);
+        count++;
+      }
+    }
+    if (count === 0) { showToast("❌ 未找到有效的菜谱数据"); return; }
+    showToast("✅ 已导入 " + count + " 天菜谱数据");
+    hidePasteModal();
+    navigate("dailyMenu");
+  } catch(e) {
+    showToast("❌ JSON 格式错误，请检查粘贴内容");
+  }
+}
+
+function showToast(msg) {
+  let toast = document.getElementById("toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast";
+    toast.style.cssText = "position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:999;background:#333;color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;pointer-events:none;opacity:0;transition:opacity 0.3s;";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = "1";
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(function() { toast.style.opacity = "0"; }, 2000);
+}
+
+// ==================== MD DISH IMPORT ====================
+let mdImportData = null; // { newDishes:[], newIngredients:[], matchedIngredients:{} }
+
+// Ingredient name -> ID lookup (built from existing GAME_DATA)
+function buildIngredientLookup() {
+  var map = {};
+  var ings = GAME_DATA.ingredients;
+  for (var i = 0; i < ings.length; i++) {
+    map[ings[i].name] = ings[i].id;
+  }
+  return map;
+}
+
+// Build dish name -> id lookup (used by MD import to detect dish-as-ingredient)
+function buildDishLookup() {
+  var map = {};
+  var dishes = GAME_DATA.dishes;
+  for (var i = 0; i < dishes.length; i++) {
+    map[dishes[i].name] = dishes[i].id;
+  }
+  return map;
+}
+
+// Auto-generate a unique ingredient ID
+function autoGenerateIngId(name) {
+  // Use simple hash of name
+  var hash = 0;
+  for (var i = 0; i < name.length; i++) {
+    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+    hash |= 0;
+  }
+  hash = Math.abs(hash).toString(16).substring(0, 8);
+  return "ing_md_" + hash;
+}
+
+// Auto-classify ingredient: returns { category, launcherId }
+function classifyIngredient(name) {
+  var n = name;
+  // Check special named ingredients first
+  if (/罗勒餐吧配方|茶楼秘|冥想|花园秘/.test(n)) return { category: "威尼斯秘制配方", launcherId: "launcher_meditation_garden" };
+  if (/茶秘|茶楼配方/.test(n)) return { category: "茶楼菜谱", launcherId: "launcher_tea_house" };
+  if (/酱油|生抽|老抽/.test(n)) return { category: "茶楼菜谱", launcherId: "launcher_tea_house" };
+
+  // Noodles / pasta
+  if (/面$|意面|意粉|面条|粉$|通心粉|千层面|饺子|馄饨|拉面|乌冬|荞麦|通心|细面|宽面|螺旋面|贝壳面/.test(n))
+    return { category: "特色面食", launcherId: "launcher_noodle_machine" };
+
+  // Seafood
+  if (/鱼$|鱼块|鱼排|鱼片|虾|蟹|贝|蛤蜊|鱿鱼|章鱼|海胆|鲍鱼|海参|鳗鱼|龙虾|牡蛎|螺|海蜇|海苔|紫菜|三文鱼|金枪鱼|鳕鱼|比目鱼|鲈鱼|带鱼|鲶鱼|罗非鱼|鲷鱼|海带|海藻/.test(n))
+    return { category: "无壳海鲜", launcherId: "launcher_sea_fishing" };
+  if (/帝王蟹|蟹$|虾$|龙虾|生蚝|扇贝|蛤蜊|青口|蛏子|海螺|海胆|贝壳|蚌/.test(n))
+    return { category: "带壳海鲜", launcherId: "launcher_sea_fishing" };
+
+  // Meat
+  if (/肉$|肉块|肉片|肉排|肉丸|肉馅|肉末|肉丁|肉丝|肉卷|培根|火腿|腊肉|香肠|排骨|里脊|五花|梅花|肘子|蹄|舌|肝|腰|肚|肠|牛|羊$|猪$|鸡$|鸭$|鹅$/.test(n))
+    return { category: "畜肉", launcherId: "launcher_meat_shop" };
+  if (/鸡腿|鸡翅|鸡胸|鸡块|鸡爪|鸭腿|鸭翅|鸭胸|禽/.test(n))
+    return { category: "禽肉", launcherId: "launcher_meat_shop" };
+
+  // Vegetables
+  if (/菜$|豆|椒|茄|葱|蒜|姜|菇|菌|花菜|萝卜|白菜|芹|瓜|笋|薯|藕|芋|菠菜|韭菜|茼蒿|芥兰|菜心|生菜|甘蓝|紫甘蓝|西兰花|花椰|秋葵|芦笋|豆芽|莲子|百合/.test(n))
+    return { category: "蔬菜", launcherId: "launcher_vegetable_basket" };
+
+  // Fruits
+  if (/果|莓|桃|梨|橙|芒果|香蕉|苹果|葡萄|樱桃|西瓜|哈密瓜|猕猴桃|菠萝|榴莲|荔枝|龙眼|椰子|枇杷|山楂|杏|梅|李|柚|柑橘|火龙果|百香果/.test(n))
+    return { category: "水果", launcherId: "launcher_fruit_basin" };
+
+  // Drinks
+  if (/酒|茶|咖啡|可乐|汽水|苏打|果汁|饮料|水$|奶昔|奶茶|冰沙/.test(n))
+    return { category: "软性饮料", launcherId: "launcher_drink_station" };
+  if (/葡萄酒|威士忌|伏特加|朗姆|白兰地|金酒|龙舌兰|香槟|啤酒|清酒/.test(n))
+    return { category: "发酵饮料", launcherId: "launcher_drink_station" };
+
+  // Dairy / frozen
+  if (/奶|奶油|黄油|芝士|奶酪|乳|油$|巧克力|冰淇淋|冰棍|雪糕/.test(n))
+    return { category: "奶制品", launcherId: "launcher_ice_cabinet" };
+
+  // Grains
+  if (/米$|麦|面$|粉$|谷|粮|稻|粟|黍|豆$|花生|芝麻|燕麦|玉米/.test(n))
+    return { category: "谷物杂粮", launcherId: "launcher_grain_silo" };
+
+  // Bread / pastry ingredients
+  if (/面团|面包|蛋糕|饼干|派|酥|挞|挞皮|蛋挞/.test(n))
+    return { category: "谷物杂粮", launcherId: "launcher_grain_silo" };
+
+  // Spices / condiments
+  if (/酱|醋|油$|盐|糖|蜜|香料|香叶|桂皮|八角|花椒|胡椒|辣椒|芥末|酱料|调味|蘸料|沙拉酱/.test(n))
+    return { category: "香料调料", launcherId: "launcher_meditation_garden" };
+
+  // Candy / Sugar
+  if (/糖|蜜|饴/.test(n))
+    return { category: "糖果", launcherId: "launcher_drink_station" };
+
+  // Default fallback
+  return { category: "其他", launcherId: "launcher_vegetable_basket" };
+}
+
+// Find utensil ID by name
+function matchUtensil(name) {
+  var map = {
+    "灶台": "cu_stove", "烤箱": "cu_oven", "烧烤架": "cu_grill",
+    "搅拌机": "cu_blender", "料理台": "cu_prep_table", "炖煮锅": "cu_stew_pot",
+    "玻璃碗": "cu_glass_bowl", "茶楼蒸笼": "cu_tea_steamer"
+  };
+  for (var key in map) {
+    if (name.indexOf(key) !== -1) return map[key];
+  }
+  return "cu_stove"; // default
+}
+
+// Parse MD file content into structured dish data
+function parseDishMD(text) {
+  var dishes = [];
+  var currentCategory = "待定";
+  var inTable = false;
+  var tableCols = []; // col indices: name, ingredients, utensil
+
+  var lines = text.split(/\r?\n/);
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+
+    // Detect heading: ## Category
+    var hMatch = line.match(/^#{1,3}\s+(.+)/);
+    if (hMatch) {
+      currentCategory = hMatch[1].replace(/[#\s]+$/, "").trim();
+      inTable = false;
+      continue;
+    }
+
+    // Detect table start
+    if (line.startsWith("|") && line.endsWith("|")) {
+      var cells = line.split("|").map(function(c) { return c.trim(); });
+      // Remove first and last empty elements
+      cells = cells.slice(1, cells.length - 1);
+
+      if (!inTable) {
+        // First table row = header
+        inTable = true;
+        tableCols = {};
+        for (var j = 0; j < cells.length; j++) {
+          var h = cells[j].replace(/[-\s]/g, "");
+          if (/菜品|菜名|名称/.test(h)) tableCols.name = j;
+          if (/食材|配方|原料|配料/.test(h)) tableCols.ingredients = j;
+          if (/炊具|工具|烹饪/.test(h)) tableCols.utensil = j;
+        }
+        // If no header detected, assume columns: name=0, ingredients=1, utensil=2
+        if (tableCols.name === undefined) tableCols.name = 0;
+        if (tableCols.ingredients === undefined) tableCols.ingredients = 1;
+        if (tableCols.utensil === undefined) tableCols.utensil = 2;
+        continue;
+      }
+
+      // Skip separator rows (|----|----|)
+      if (/^[-:\s|]+$/.test(line)) continue;
+
+      // Data row
+      var name = cells[tableCols.name] || "";
+      var ingStr = cells[tableCols.ingredients] || "";
+      var utensilStr = cells[tableCols.utensil] || "";
+
+      // Clean name
+      name = name.replace(/\*\*/g, "").trim();
+      if (!name || name.length === 0) continue;
+
+      // Parse ingredients: split by 、or , or ，or spaces
+      var ingNames = ingStr.split(/[、,，]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+
+      dishes.push({
+        name: name,
+        category: currentCategory,
+        ingredients: ingNames,
+        utensil: utensilStr.trim() || "灶台"
+      });
+    } else {
+      inTable = false;
+    }
+  }
+
+  return dishes;
+}
+
+// Handle MD file upload
+function handleMDImport(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var text = e.target.result;
+    var parsed = parseDishMD(text);
+    if (parsed.length === 0) {
+      showToast("❌ 未检测到菜品数据，请检查MD文件格式");
+      return;
+    }
+    processImportPreview(parsed);
+  };
+  reader.readAsText(file);
+  document.getElementById("mdImportFileInput").value = "";
+}
+
+// Process parsed dishes: match ingredients, generate new ones, build preview
+function processImportPreview(parsedDishes) {
+  var ingLookup = buildIngredientLookup();
+  var dishLookup = buildDishLookup();
+  var dishNameSet = {};
+  var existingDishes = GAME_DATA.dishes;
+  for (var i = 0; i < existingDishes.length; i++) {
+    dishNameSet[existingDishes[i].name] = true;
+  }
+
+  var newDishes = [];
+  var newIngredients = []; // { id, name, category, launcherId }
+  var newIngNameSet = {};
+  var matchedIngredients = {}; // name -> id (matched to existing)
+  var skippedDishes = [];
+  var unknownIngs = {}; // name -> info (ingredients that need to be newly created)
+
+  for (var i = 0; i < parsedDishes.length; i++) {
+    var d = parsedDishes[i];
+    // Check if dish already exists
+    if (dishNameSet[d.name]) {
+      skippedDishes.push(d);
+      continue;
+    }
+
+    var mappedIngs = [];
+    for (var j = 0; j < d.ingredients.length; j++) {
+      var ingName = d.ingredients[j];
+      var existingId = ingLookup[ingName];
+      if (existingId) {
+        matchedIngredients[ingName] = existingId;
+        mappedIngs.push({ name: ingName, id: existingId, isNew: false, isDish: false });
+      } else if (dishLookup[ingName]) {
+        // This element is actually an existing dish, not a raw ingredient
+        var dishId = dishLookup[ingName];
+        mappedIngs.push({ name: ingName, id: dishId, isNew: false, isDish: true });
+      } else {
+        // Need to generate new ingredient
+        if (!newIngNameSet[ingName]) {
+          var classif = classifyIngredient(ingName);
+          var newId = autoGenerateIngId(ingName);
+          newIngNameSet[ingName] = true;
+          unknownIngs[ingName] = { id: newId, name: ingName, category: classif.category, launcherId: classif.launcherId, isNew: true };
+          newIngredients.push(unknownIngs[ingName]);
+        }
+        mappedIngs.push({ name: ingName, id: unknownIngs[ingName].id, isNew: true });
+      }
+    }
+
+    // Generate dish ID
+    var dishHash = 0;
+    for (var k = 0; k < d.name.length; k++) {
+      dishHash = ((dishHash << 5) - dishHash) + d.name.charCodeAt(k);
+      dishHash |= 0;
+    }
+    var dishId = "dish_md_" + Math.abs(dishHash).toString(16).substring(0, 8);
+
+    newDishes.push({
+      id: dishId,
+      name: d.name,
+      category: d.category,
+      utensil: matchUtensil(d.utensil),
+      ingredients: mappedIngs,
+      utensilName: d.utensil
+    });
+  }
+
+  // Store for later use
+  mdImportData = {
+    newDishes: newDishes,
+    newIngredients: newIngredients,
+    matchedIngredients: matchedIngredients,
+    skippedDishes: skippedDishes,
+    parsedCount: parsedDishes.length
+  };
+
+  // Build preview HTML
+  var html = "";
+  html += '<div class="summary">';
+  html += '<span>📊 解析结果：</span>共解析 ' + parsedDishes.length + ' 道菜品';
+  if (skippedDishes.length > 0) {
+    html += '，<span style="color:#e67e22;">' + skippedDishes.length + ' 道已存在（跳过）</span>';
+  }
+  html += '，新增 <span style="color:#2e7d32;">' + newDishes.length + ' 道菜品</span>';
+  html += '，自动生成 <span style="color:#8e44ad;">' + newIngredients.length + ' 个新食材</span>';
+  html += '</div>';
+
+  if (newDishes.length === 0 && newIngredients.length === 0) {
+    html += '<div class="summary warn"><span>⚠️ 没有新内容可导入，所有菜品已存在。</span></div>';
+  }
+
+  // New dishes table
+  if (newDishes.length > 0) {
+    html += '<div class="md-preview-section"><h4>🍽️ 新增菜品 (' + newDishes.length + ')</h4>';
+    html += '<table class="md-preview-table"><thead><tr><th>菜品名称</th><th>分类</th><th>炊具</th><th>食材</th></tr></thead><tbody>';
+    for (var i = 0; i < newDishes.length; i++) {
+      var nd = newDishes[i];
+      var ingHtml = "";
+      for (var j = 0; j < nd.ingredients.length; j++) {
+        var ing = nd.ingredients[j];
+        ingHtml += '<span class="ing-item ' + (ing.isDish ? 'tag-dish' : (ing.isNew ? 'tag-new' : '')) + '">' + escapeHtml(ing.name) + (ing.isDish ? ' 📋' : (ing.isNew ? ' 🆕' : '')) + '</span>';
+      }
+      html += '<tr><td style="font-weight:500;">' + escapeHtml(nd.name) + '</td><td>' + escapeHtml(nd.category) + '</td><td>' + escapeHtml(nd.utensilName) + '</td><td class="ing-list">' + ingHtml + '</td></tr>';
+    }
+    html += '</tbody></table></div>';
+  }
+
+  // New ingredients table
+  if (newIngredients.length > 0) {
+    html += '<div class="md-preview-section"><h4>🥬 自动生成的新食材 (' + newIngredients.length + ')</h4>';
+    html += '<table class="md-preview-table"><thead><tr><th>食材名称</th><th>生成ID</th><th>分类</th><th>归属发射器</th></tr></thead><tbody>';
+    for (var i = 0; i < newIngredients.length; i++) {
+      var ni = newIngredients[i];
+      var launcherName = "未知";
+      var launchers = GAME_DATA.launchers;
+      for (var j = 0; j < launchers.length; j++) {
+        if (launchers[j].id === ni.launcherId) { launcherName = launchers[j].name; break; }
+      }
+      html += '<tr><td style="font-weight:500;">' + escapeHtml(ni.name) + ' <span class="tag tag-new">新</span></td><td style="font-family:monospace;font-size:12px;">' + ni.id + '</td><td>' + escapeHtml(ni.category) + '</td><td>' + escapeHtml(launcherName) + '</td></tr>';
+    }
+    html += '</tbody></table></div>';
+  }
+
+  // Skipped dishes
+  if (skippedDishes.length > 0) {
+    html += '<div class="md-preview-section"><h4 style="border-color:#f39c12;">⏭️ 已存在的菜品 (' + skippedDishes.length + ')</h4>';
+    html += '<table class="md-preview-table"><thead><tr><th>菜品名称</th><th>分类</th></tr></thead><tbody>';
+    for (var i = 0; i < skippedDishes.length; i++) {
+      html += '<tr><td>' + escapeHtml(skippedDishes[i].name) + '</td><td>' + escapeHtml(skippedDishes[i].category) + '</td></tr>';
+    }
+    html += '</tbody></table></div>';
+  }
+
+  document.getElementById("mdPreviewBody").innerHTML = html;
+  document.getElementById("mdPreviewModal").classList.add("active");
+}
+
+function hideMDPreview() {
+  document.getElementById("mdPreviewModal").classList.remove("active");
+  mdImportData = null;
+}
+
+function applyMDImport() {
+  if (!mdImportData || (mdImportData.newDishes.length === 0 && mdImportData.newIngredients.length === 0)) {
+    showToast("⚠️ 没有可导入的新内容");
+    hideMDPreview();
+    return;
+  }
+
+  // Load existing extensions from localStorage
+  var extData = {};
+  try {
+    var saved = localStorage.getItem("fei_e_game_data_ext");
+    if (saved) extData = JSON.parse(saved);
+  } catch(e) { extData = {}; }
+
+  if (!extData.ingredients) extData.ingredients = [];
+  if (!extData.dishes) extData.dishes = [];
+
+  // Merge new ingredients (avoid duplicates)
+  var extIngIds = {};
+  for (var i = 0; i < extData.ingredients.length; i++) {
+    extIngIds[extData.ingredients[i].id] = true;
+  }
+  for (var i = 0; i < mdImportData.newIngredients.length; i++) {
+    var ni = mdImportData.newIngredients[i];
+    if (!extIngIds[ni.id]) {
+      extData.ingredients.push({
+        id: ni.id,
+        name: ni.name,
+        category: ni.category,
+        source: { type: "launcher", id: ni.launcherId },
+        description: "（导入自MD）" + ni.name
+      });
+      extIngIds[ni.id] = true;
+    }
+  }
+
+  // Merge new dishes (avoid duplicates)
+  var extDishIds = {};
+  for (var i = 0; i < extData.dishes.length; i++) {
+    extDishIds[extData.dishes[i].id] = true;
+  }
+  for (var i = 0; i < mdImportData.newDishes.length; i++) {
+    var nd = mdImportData.newDishes[i];
+    if (!extDishIds[nd.id]) {
+      var ingredientIds = [];
+      for (var j = 0; j < nd.ingredients.length; j++) {
+        ingredientIds.push({ id: nd.ingredients[j].id, qty: 1 });
+      }
+      extData.dishes.push({
+        id: nd.id,
+        name: nd.name,
+        category: nd.category,
+        cookingUtensil: nd.utensil,
+        ingredients: ingredientIds,
+        description: nd.category + "菜品 - " + nd.name
+      });
+      extDishIds[nd.id] = true;
+    }
+  }
+
+  localStorage.setItem("fei_e_game_data_ext", JSON.stringify(extData));
+
+  var totalNew = mdImportData.newDishes.length + mdImportData.newIngredients.length;
+  showToast("✅ 已导入 " + mdImportData.newDishes.length + " 道菜品 + " + mdImportData.newIngredients.length + " 个新食材");
+
+  hideMDPreview();
+  mergeGameDataExt();
+  navigate("home");
+}
+
+// Merge localStorage extension data into GAME_DATA at runtime
+function mergeGameDataExt() {
+  var extData = {};
+  try {
+    var saved = localStorage.getItem("fei_e_game_data_ext");
+    if (saved) extData = JSON.parse(saved);
+  } catch(e) { extData = {}; }
+
+  // Merge ingredients
+  if (extData.ingredients && extData.ingredients.length > 0) {
+    var existingIngIds = {};
+    for (var i = 0; i < GAME_DATA.ingredients.length; i++) {
+      existingIngIds[GAME_DATA.ingredients[i].id] = true;
+    }
+    for (var i = 0; i < extData.ingredients.length; i++) {
+      if (!existingIngIds[extData.ingredients[i].id]) {
+        GAME_DATA.ingredients.push(extData.ingredients[i]);
+        existingIngIds[extData.ingredients[i].id] = true;
+        // Add to launcher produces list
+        var src = extData.ingredients[i].source;
+        if (src && src.type === "launcher") {
+          var launcher = GAME_DATA.launchers.find(function(l) { return l.id === src.id; });
+          if (launcher && launcher.produces.indexOf(extData.ingredients[i].id) === -1) {
+            launcher.produces.push(extData.ingredients[i].id);
+          }
+        }
+      }
+    }
+  }
+
+  // Merge dishes
+  if (extData.dishes && extData.dishes.length > 0) {
+    var existingDishIds = {};
+    for (var i = 0; i < GAME_DATA.dishes.length; i++) {
+      existingDishIds[GAME_DATA.dishes[i].id] = true;
+    }
+    for (var i = 0; i < extData.dishes.length; i++) {
+      if (!existingDishIds[extData.dishes[i].id]) {
+        GAME_DATA.dishes.push(extData.dishes[i]);
+        existingDishIds[extData.dishes[i].id] = true;
+      }
+    }
+  }
+
+  // Refresh sidebar
+  renderSidebar();
+}
+
+// Export merged game data as downloadable HTML
+function exportUpdatedHTML() {
+  // Build the new ingredient section for the HTML
+  var extData = {};
+  try {
+    var saved = localStorage.getItem("fei_e_game_data_ext");
+    if (saved) extData = JSON.parse(saved);
+  } catch(e) { extData = {}; }
+
+  if ((!extData.ingredients || extData.ingredients.length === 0) &&
+      (!extData.dishes || extData.dishes.length === 0)) {
+    showToast("⚠️ 没有通过MD导入的新数据可导出");
+    return;
+  }
+
+  // Read the full HTML source
+  var html = document.documentElement.outerHTML;
+
+  // Remove any existing boot script from previous exports to prevent stale data overwriting
+  // The old boot script (injected by a prior exportUpdatedHTML call) would overwrite
+  // localStorage with outdated ext data, causing newly imported dishes to be lost.
+  html = html.replace(/(<body[^>]*>)\s*<script>localStorage\.setItem\("fei_e_game_data_ext"[\s\S]*?<\/script>/, '$1');
+
+  // Build a boot script that pre-populates localStorage with extension data
+  // This runs synchronously before mergeGameDataExt() in init()
+  var extJson = JSON.stringify(extData);
+  var bootScript = '<script>localStorage.setItem("fei_e_game_data_ext",' + JSON.stringify(extJson) + ');<\u002fscript>';
+
+  // Inject boot script right after the opening <body> tag
+  // This ensures it runs before init() is called at the bottom of the page
+  html = html.replace(/<body[^>]*>/, function(match) {
+    return match + bootScript;
+  });
+
+  var totalDishes = GAME_DATA.dishes.length;
+  var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "fe" + totalDishes + ".html";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("✅ 已下载 " + "fe" + totalDishes + ".html（共 " + totalDishes + " 道菜品，含 " + (extData.dishes ? extData.dishes.length : 0) + " 道导入 + " + (extData.ingredients ? extData.ingredients.length : 0) + " 个导入食材）");
+}
+
+// Clear MD-imported extension data from localStorage
+function clearMDImportData() {
+  if (!confirm("⚠️ 确定要清除所有通过MD导入的菜品和食材数据吗？\n\n此操作仅清除导入的扩展数据，不影响每日菜谱记录。")) return;
+  if (!confirm("再次确认：清除所有MD导入数据？")) return;
+
+  localStorage.removeItem("fei_e_game_data_ext");
+  showToast("🗑️ 已清除MD导入数据");
+  // Reload to restore original GAME_DATA
+  location.reload();
+}
+
+// ==================== SCORE CALCULATOR ====================
+let calcDishes = [
+  { name: "组合A", score: 16 },
+  { name: "组合B", score: 11 },
+  { name: "组合C", score: 24 },
+  { name: "组合D", score: 28 },
+  { name: "组合E", score: 41 },
+  { name: "组合F", score: 53 },
+  { name: "组合G", score: 91 }
+];
+let calcTarget = 70;
+
+function renderCalculator() {
+  return `<div class="breadcrumb">
+    <a onclick="navigate('home')">首页</a>
+    <span class="separator">/</span>
+    <span>分值计算器</span>
+  </div>
+  <div class="calc-container">
+    <div class="section-heading">🧮 菜品分值组合计算器</div>
+    <div class="calc-help" style="margin-bottom:20px;">
+      游戏中小任务给定一个<b>目标分值</b>，需要从若干菜品组合中选出若干个，使总分<b>≥ 目标分值</b>且<b>最接近目标</b>。<br>
+      输入目标分值和各菜品组合的分值，点击计算即可得到最优搭配方案。
+    </div>
+    <div class="calc-card">
+      <div class="calc-label">🎯 目标分值</div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <input type="number" id="calcTargetInput" class="calc-input" value="${calcTarget}" min="1"
+          style="max-width:180px;" placeholder="输入目标分值">
+        <button class="calc-btn calc-btn-primary" onclick="runCalculation()">🔍 计算最优组合</button>
+      </div>
+    </div>
+    <div class="calc-card">
+      <div class="calc-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>🍽️ 菜品组合列表 <span style="color:var(--color-text-light);font-weight:400;font-size:13px;">（${calcDishes.length} 个）</span></span>
+        <div style="display:flex;gap:6px;">
+          <button class="calc-btn calc-btn-outline calc-btn-sm" onclick="addCalcDish()">+ 添加</button>
+          <button class="calc-btn calc-btn-outline calc-btn-sm" onclick="clearCalcDishes()">清空</button>
+        </div>
+      </div>
+      <div class="calc-dish-list" id="calcDishList"></div>
+      <div class="calc-help">
+        💡 每个菜品组合填入一个分值。点击「添加」增加菜品，在下方的得分栏填入该菜品组合的分值。
+      </div>
+    </div>
+    <div id="calcResultArea"></div>
+  </div>`;
+}
+
+function initCalculator() {
+  renderCalcDishList();
+  document.getElementById("calcTargetInput").addEventListener("change", function() {
+    calcTarget = parseInt(this.value) || 70;
+  });
+  document.getElementById("calcTargetInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") runCalculation();
+  });
+}
+
+function addCalcDish() {
+  calcDishes.push({ name: "菜品" + (calcDishes.length + 1), score: 0 });
+  renderCalcDishList();
+}
+
+function clearCalcDishes() {
+  calcDishes = [];
+  renderCalcDishList();
+  document.getElementById("calcResultArea").innerHTML = "";
+}
+
+function updateCalcDishName(index, value) {
+  calcDishes[index].name = value || ("菜品" + (index + 1));
+}
+
+function updateCalcDishScore(index, value) {
+  calcDishes[index].score = parseInt(value) || 0;
+}
+
+function removeCalcDish(index) {
+  calcDishes.splice(index, 1);
+  renderCalcDishList();
+}
+
+function renderCalcDishList() {
+  const container = document.getElementById("calcDishList");
+  if (!container) return;
+  if (calcDishes.length === 0) {
+    container.innerHTML = `<div style="text-align:center;padding:24px;color:var(--color-text-light);">
+      暂无菜品，点击「+ 添加」开始</div>`;
+    return;
+  }
+  let html = "";
+  for (let i = 0; i < calcDishes.length; i++) {
+    const d = calcDishes[i];
+    html += `<div class="calc-dish-row">
+      <div class="calc-dish-index">${i + 1}</div>
+      <input class="calc-input" value="${escapeHtml(d.name)}" style="flex:1;"
+        onchange="updateCalcDishName(${i}, this.value)" placeholder="菜品名称">
+      <span style="color:var(--color-text-light);font-size:13px;">得分</span>
+      <input type="number" class="calc-input-sm" value="${d.score}" min="0"
+        onchange="updateCalcDishScore(${i}, this.value)"
+        onkeydown="if(event.key==='Enter')runCalculation()" placeholder="分值">
+      <button class="calc-btn calc-btn-danger calc-btn-sm" onclick="removeCalcDish(${i})"
+        style="padding:4px 8px;">×</button>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function runCalculation() {
+  const targetEl = document.getElementById("calcTargetInput");
+  calcTarget = parseInt(targetEl ? targetEl.value : 70) || 70;
+
+  // Gather valid scores
+  const entries = calcDishes
+    .map((d, i) => ({ index: i, name: d.name, score: d.score }))
+    .filter(d => d.score > 0);
+
+  const resultArea = document.getElementById("calcResultArea");
+  if (entries.length === 0) {
+    resultArea.innerHTML = `<div class="calc-card" style="text-align:center;color:var(--color-text-light);">
+      ⚠️ 请先添加至少一个有分值的菜品组合</div>`;
+    return;
+  }
+
+  const scores = entries.map(d => d.score);
+  const results = findOptimalCombinations(calcTarget, scores, entries);
+
+  if (results.length === 0) {
+    resultArea.innerHTML = `<div class="calc-card" style="text-align:center;color:var(--color-danger);">
+      ❌ 无法达到目标分值 ${calcTarget}（所有组合总分也不够）</div>`;
+    return;
+  }
+
+  let html = `<div class="section-heading" style="margin-top:8px;">📊 计算结果</div>`;
+  html += `<p style="margin-bottom:16px;color:var(--color-text-light);">
+    共搜索 ${entries.length} 个菜品组合，目标分值 <b style="color:var(--color-primary)">${calcTarget}</b>，
+    找到 <b>${results.length}</b> 个方案</p>`;
+
+  for (let r = 0; r < Math.min(results.length, 8); r++) {
+    const res = results[r];
+    const isBest = r === 0;
+    const diff = res.sum - calcTarget;
+    const diffClass = diff === 0 ? "exact" : "over";
+
+    html += `<div class="calc-result-item ${isBest ? 'best' : ''}">
+      <div class="calc-result-header">
+        <div>
+          ${isBest ? '<span style="font-size:12px;color:var(--color-success);font-weight:700;">🏆 最优方案</span><br>' : ''}
+          <span class="calc-result-sum">${res.sum} 分</span>
+          <span class="calc-result-diff ${diffClass}">
+            ${diff === 0 ? '🎯 精确命中' : '超出 ' + diff + ' 分'}
+          </span>
+        </div>
+        <span style="font-size:13px;color:var(--color-text-light);">${res.indices.length} 个菜品</span>
+      </div>
+      <div class="calc-result-score-list">`;
+
+    for (const idx of res.indices) {
+      const e = entries[idx];
+      html += `<span class="calc-score-tag">${escapeHtml(e.name)} <b>${e.score}</b></span>`;
+    }
+
+    html += `</div></div>`;
+  }
+
+  resultArea.innerHTML = html;
+  resultArea.scrollIntoView({ behavior: "smooth" });
+}
+
+function findOptimalCombinations(target, scores, entries) {
+  const n = scores.length;
+
+  // Brute force for n <= 22
+  if (n <= 22) {
+    const all = [];
+    const totalSubsets = 1 << n;
+    for (let mask = 1; mask < totalSubsets; mask++) {
+      let sum = 0;
+      for (let i = 0; i < n; i++) {
+        if (mask & (1 << i)) sum += scores[i];
+      }
+      if (sum >= target) {
+        const indices = [];
+        for (let i = 0; i < n; i++) {
+          if (mask & (1 << i)) indices.push(i);
+        }
+        all.push({ sum, indices });
+      }
+    }
+    all.sort((a, b) => (a.sum - target) - (b.sum - target));
+    return all.slice(0, 10);
+  }
+
+  // For larger n, use DFS with pruning
+  // Sort scores descending for better pruning
+  const indexed = scores.map((s, i) => ({ s, i })).sort((a, b) => b.s - a.s);
+  const sortedScores = indexed.map(x => x.s);
+  const origIndices = indexed.map(x => x.i);
+
+  // Compute suffix sums for pruning
+  const suffix = new Array(n + 1).fill(0);
+  for (let i = n - 1; i >= 0; i--) suffix[i] = suffix[i + 1] + sortedScores[i];
+
+  let bestSum = Infinity;
+  let bestCombos = [];
+
+  function dfs(pos, curSum, selected) {
+    // If current sum already reaches target
+    if (curSum >= target) {
+      if (curSum < bestSum) {
+        bestSum = curSum;
+        bestCombos = [[...selected]];
+      } else if (curSum === bestSum) {
+        bestCombos.push([...selected]);
+      }
+      return; // no need to go deeper, adding more only increases sum
+    }
+    // Prune: even taking all remaining can't reach target
+    if (curSum + suffix[pos] < target) return;
+    // Prune: current sum + all remaining is worse than best
+    if (curSum + suffix[pos] >= bestSum && bestSum < Infinity) {
+      // We can still find a better solution potentially
+      // Only prune if even the minimum we could add pushes us past bestSum
+    }
+
+    for (let i = pos; i < n; i++) {
+      const newSum = curSum + sortedScores[i];
+      if (newSum > bestSum) continue; // already worse than best
+      selected.push(origIndices[i]);
+      dfs(i + 1, newSum, selected);
+      selected.pop();
+    }
+  }
+
+  dfs(0, 0, []);
+
+  // Convert back to original indices
+  const result = bestCombos.map(combo => {
+    const sum = combo.reduce((acc, idx) => acc + scores[idx], 0);
+    return { sum, indices: combo };
+  });
+  result.sort((a, b) => (a.sum - target) - (b.sum - target));
+  return result.slice(0, 10);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+
+// ==================== GO BACK ====================
+let navHistory = [];
+const originalNavigate = navigate;
+function navigateWithHistory(view, type, category, id) {
+  navHistory.push({ ...currentRoute });
+  originalNavigate(view, type, category, id);
+}
+navigate = navigateWithHistory;
+function goBack() {
+  if (navHistory.length > 0) {
+    const prev = navHistory.pop();
+    currentRoute = prev;
+    renderContent();
+    updateSidebarActive();
+  }
+}
+
+// ==================== INIT ====================
+function init() {
+  // Merge MD-imported data from localStorage
+  mergeGameDataExt();
+
+  // Sidebar toggle state
+  applySidebarState();
+  document.getElementById("sidebarToggle").addEventListener("click", toggleSidebar);
+  // Keyboard shortcut: Ctrl+B
+  document.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "b") {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  renderSidebar();
+  renderContent();
+  // Search events
+  const searchInput = document.getElementById("searchInput");
+  searchInput.addEventListener("input", function() { performSearch(this.value); });
+  searchInput.addEventListener("focus", function() {
+    if (this.value) performSearch(this.value);
+  });
+  document.addEventListener("click", function(e) {
+    if (!e.target.closest(".search-box")) {
+      document.getElementById("searchResults").classList.remove("active");
+    }
+  });
+  // Expand first section by default
+  expandedSections.dishes = true;
+  renderSidebar();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+<div class="modal-overlay" id="pasteModal">
+  <div class="modal-box">
+    <h3>📋 粘贴导入菜谱数据</h3>
+    <p>将之前导出的 JSON 内容粘贴到下方，然后点击「确认导入」。<br>支持从微信/备忘录/AirDrop 等任何地方复制过来的文本。</p>
+    <textarea id="pasteTextarea" placeholder="在此粘贴 JSON 内容，例如：
+{
+  &quot;fei_e_daily_menu_1&quot;: &quot;...&quot;
+}"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hidePasteModal()">取消</button>
+      <button class="btn-confirm" onclick="doPasteImport()">确认导入</button>
+    </div>
+  </div>
+</div>
+<!-- MD Import Preview Modal -->
+<div class="md-preview-overlay" id="mdPreviewModal">
+  <div class="md-preview-box">
+    <div class="md-preview-header">
+      <h3>📄 菜品MD导入预览</h3>
+      <button style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--color-text-light);" onclick="hideMDPreview()">×</button>
+    </div>
+    <div class="md-preview-body" id="mdPreviewBody"><div class="summary"><span>📊 解析结果：</span>共解析 5 道菜品，<span style="color:#e67e22;">4 道已存在（跳过）</span>，新增 <span style="color:#2e7d32;">1 道菜品</span>，自动生成 <span style="color:#8e44ad;">1 个新食材</span></div><div class="md-preview-section"><h4>🍽️ 新增菜品 (1)</h4><table class="md-preview-table"><thead><tr><th>菜品名称</th><th>分类</th><th>炊具</th><th>食材</th></tr></thead><tbody><tr><td style="font-weight:500;">玉子烧寿司卷</td><td>和风料理</td><td>料理台</td><td class="ing-list"><span class="ing-item tag-new">竹香料理秘制配方3 🆕</span><span class="ing-item tag-dish">玉子烧 📋</span><span class="ing-item tag-dish">寿司米饭 📋</span></td></tr></tbody></table></div><div class="md-preview-section"><h4>🥬 自动生成的新食材 (1)</h4><table class="md-preview-table"><thead><tr><th>食材名称</th><th>生成ID</th><th>分类</th><th>归属发射器</th></tr></thead><tbody><tr><td style="font-weight:500;">竹香料理秘制配方3 <span class="tag tag-new">新</span></td><td style="font-family:monospace;font-size:12px;">ing_md_3738bba4</td><td>香料调料</td><td>冥想花园</td></tr></tbody></table></div><div class="md-preview-section"><h4 style="border-color:#f39c12;">⏭️ 已存在的菜品 (4)</h4><table class="md-preview-table"><thead><tr><th>菜品名称</th><th>分类</th></tr></thead><tbody><tr><td>酥炸香菇丸</td><td>炸物小吃</td></tr><tr><td>玉米猪骨汤</td><td>炖煮佳肴</td></tr><tr><td>玉子烧</td><td>和风料理</td></tr><tr><td>寿司米饭</td><td>和风料理</td></tr></tbody></table></div></div>
+    <div class="md-preview-footer">
+      <button class="btn-cancel" onclick="hideMDPreview()">取消</button>
+      <button class="btn-confirm" onclick="applyMDImport()">✅ 确认导入</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="toast" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 999; background: rgb(51, 51, 51); color: rgb(255, 255, 255); padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity 0.3s;">✅ 已导入 1 道菜品 + 1 个新食材</div></body></html>
